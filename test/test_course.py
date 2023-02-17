@@ -1,7 +1,6 @@
 from typing import Dict, List
-from datetime import time
 from model.course import CourseSection
-from service import CourseService
+from service.entity_manager import EntityManager
 
 from db import db
 
@@ -18,6 +17,6 @@ def test_get_course_details():
         ]
     }
 
-    course_service : CourseService = CourseService(db)
-    course_section : CourseSection = course_service.get_by_id(514101)
-    assert expected == course_section.get_details()
+    em : EntityManager = EntityManager(db)
+    course_section : CourseSection = em.get_by_id(CourseSection, 514101)
+    assert expected == course_section.view()
