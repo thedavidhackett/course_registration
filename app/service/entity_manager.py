@@ -13,3 +13,8 @@ class EntityManager:
             obj = s.get(Cls, id)
 
         return obj
+
+    def add(self, obj : ManagedEntity) -> None:
+        with Session(self.__db) as s:
+            s.add(obj)
+            s.commit()

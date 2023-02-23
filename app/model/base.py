@@ -8,10 +8,6 @@ Base = declarative_base()
 
 class ManagedEntity(Base):
     __abstract__ = True
-    __id : Mapped[int] = mapped_column("id", primary_key=True)
-
-    def __init__(self, id : int) -> None:
-        self.__id : int = id
 
     @declared_attr.directive
     def __tablename__(cls) -> str:
@@ -23,12 +19,6 @@ class ManagedEntity(Base):
 
         return name
 
-    @property
-    def id(self) -> int:
-        return self.__id
-
-
-
 class Viewable(Protocol):
-    def view() -> Dict[str, object]:
+    def view(self) -> Dict[str, object]:
         pass

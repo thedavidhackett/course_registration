@@ -1,5 +1,6 @@
 from typing import Dict, List
 from model.course import CourseSection
+from model.registration import Registration
 from model.user import Student
 from service.entity_manager import EntityManager
 from service.registration_manager import RegistrationManager
@@ -10,7 +11,14 @@ rm : RegistrationManager = RegistrationManager(em)
 
 
 def test_register_student():
-    assert False
+    success : bool
+    msg : str
+    success, msg = rm.register(1, 514101)
+    assert success
+
+    registration : Registration = em.get_by_id(Registration, 1)
+    assert registration.status == 'registered'
+
 
 def test_register_student_with_restriction():
     assert False
