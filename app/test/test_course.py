@@ -13,7 +13,7 @@ def test_get_course_details():
             "description": "A class about object oriented programming",
         },
         "times": [
-            {"day": "Monday", "start_time": "9:00AM", "end_time": "10:00AM"}
+            {"day": "Monday", "start_time": "4:10PM", "end_time": "6:00PM"}
         ]
     }
 

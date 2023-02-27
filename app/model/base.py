@@ -1,8 +1,7 @@
 from typing import Dict, Protocol
+
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
 
 Base = declarative_base()
 

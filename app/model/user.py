@@ -1,16 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
-from datetime import time
-from .base import ManagedEntity
-from sqlalchemy import ForeignKey, String
-from sqlalchemy.orm import declared_attr
+
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
-from sqlalchemy.orm import column_property
 
-
+from .base import ManagedEntity
 from .registration import Registration
+from .restriction import Restriction
 
 class User(ManagedEntity):
     __abstract__ = True
@@ -49,15 +47,26 @@ class User(ManagedEntity):
 class Student(User):
     __level : Mapped[str] = mapped_column("level", String(20))
     __registrations : Mapped[List[Registration]] = relationship(lazy="subquery")
+    __restrictions : Mapped[List[Restriction]] = relationship(lazy="subquery")
+    __capacity : Mapped[int] = mapped_column("capacity")
 
-    def __init__(self, first_name: str, last_name: str, level : str) -> None:
+    def __init__(self, first_name: str, last_name: str, level : str, capacity : int = 3) -> None:
         super().__init__(first_name, last_name)
         self.__level = level
         self.__registrations : List[Registration] = []
+        self.__restrictions : List[Restriction] = []
+        self.__capacity = capacity
 
     @property
     def level(self) -> str:
         return self.__level
+
+    @property
+    def restrictions(self) -> List[Restriction]:
+        return self.__restrictions
+
+    def at_capacity(self) -> bool:
+        return len(self.__registrations) >= self.__capacity
 
     def full_name(self):
         return self.first_name + " " + self.last_name

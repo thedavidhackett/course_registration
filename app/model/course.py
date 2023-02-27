@@ -1,10 +1,11 @@
 from typing import Dict, List
 from datetime import time
-from sqlalchemy import ForeignKey, String
+
+from sqlalchemy import ForeignKey
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
-from sqlalchemy.orm import column_property
 
 
 from .base import ManagedEntity
@@ -15,12 +16,14 @@ class Course(ManagedEntity):
     __id : Mapped[int] = mapped_column("id", primary_key=True)
     __name : Mapped[str] = mapped_column("name", String(100))
     __description : Mapped[str] = mapped_column("description", String(255))
+    __consent_required : Mapped[bool] = mapped_column("consent_required")
 
-    def __init__(self, id : int, name: str, description: str) -> None:
+    def __init__(self, id : int, name: str, description: str, consent_required : bool = False) -> None:
         super().__init__()
         self.__id : int = id
         self.__name : str = name
         self.__description : str = description
+        self.__consent_required : str = consent_required
 
     @property
     def id(self) -> int:
@@ -33,6 +36,10 @@ class Course(ManagedEntity):
     @property
     def description(self) -> str:
         return self.__description
+
+    @property
+    def consent_required(self) -> bool:
+        return self.__consent_required
 
     def view(self) -> Dict[str, object]:
         return {"id": self.id, "name": self.name, "description": self.description}
@@ -73,7 +80,7 @@ class TimeSlot(ManagedEntity):
 class CourseSection(ManagedEntity):
     __id : Mapped[int] = mapped_column("id", primary_key=True)
     __capacity : Mapped[int] = mapped_column("capacity")
-    __course_id : Mapped[int] = mapped_column("course_id", ForeignKey("course.id"))
+    course_id : Mapped[int] = mapped_column("course_id", ForeignKey("course.id"))
     _course: Mapped["Course"] = relationship(lazy="subquery")
     __times : Mapped[List["TimeSlot"]] = relationship(lazy="subquery")
     __registrations : Mapped[List["Registration"]] = relationship(lazy="subquery")
@@ -103,6 +110,10 @@ class CourseSection(ManagedEntity):
             details.append(time.view())
 
         return details
+
+    @property
+    def consent_required(self) -> bool:
+        return self._course.consent_required
 
     def view(self) -> Dict[str, object]:
         return {'id': self.id, "course": self.course, "times": self.times}
