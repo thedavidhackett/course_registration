@@ -62,6 +62,10 @@ class Student(User):
         return self.__level
 
     @property
+    def registrations(self) -> List[Registration]:
+        return self.__registrations
+
+    @property
     def restrictions(self) -> List[Restriction]:
         return self.__restrictions
 

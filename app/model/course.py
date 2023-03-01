@@ -17,6 +17,10 @@ class Course(ManagedEntity):
     __name : Mapped[str] = mapped_column("name", String(100))
     __description : Mapped[str] = mapped_column("description", String(255))
     __consent_required : Mapped[bool] = mapped_column("consent_required")
+    __pre_reqs : Mapped[List["Course"]] = relationship(lazy="subquery")
+    __pre_req_for_id : Mapped[int] = mapped_column("pre_req_for_id", ForeignKey('course.id'), nullable=True)
+    course_sections: Mapped[List["CourseSection"]] = relationship(back_populates="_course")
+
 
     def __init__(self, id : int, name: str, description: str, consent_required : bool = False) -> None:
         super().__init__()
@@ -24,6 +28,7 @@ class Course(ManagedEntity):
         self.__name : str = name
         self.__description : str = description
         self.__consent_required : str = consent_required
+        self.__pre_reqs : List['Course'] = []
 
     @property
     def id(self) -> int:
@@ -41,8 +46,15 @@ class Course(ManagedEntity):
     def consent_required(self) -> bool:
         return self.__consent_required
 
+    @property
+    def pre_reqs(self) -> List['Course']:
+        return self.__pre_reqs
+
     def view(self) -> Dict[str, object]:
-        return {"id": self.id, "name": self.name, "description": self.description}
+        return {"id": self.id, "name": self.name, "description": self.description, "pre_reqs" : [c.name for c in self.pre_reqs]}
+
+    def add_pre_req(self, course : "Course") -> None:
+        self.__pre_reqs.append(course)
 
 class TimeSlot(ManagedEntity):
     __id : Mapped[int] = mapped_column("id", primary_key=True, autoincrement=True)
@@ -85,9 +97,9 @@ class CourseSection(ManagedEntity):
     __times : Mapped[List["TimeSlot"]] = relationship(lazy="subquery")
     __registrations : Mapped[List["Registration"]] = relationship(lazy="subquery")
 
-    def __init__(self, id: int, capacity : int, course : Course, times : List[TimeSlot]) -> None:
+    def __init__(self, section_id: int, capacity : int, course : Course, times : List[TimeSlot]) -> None:
         super().__init__()
-        self.__id : int = id
+        self.__id : int = course.id * 10 + section_id
         self.__capacity : int = capacity
         self.__times : List[TimeSlot] = times
         self._course : Course = course
@@ -114,6 +126,12 @@ class CourseSection(ManagedEntity):
     @property
     def consent_required(self) -> bool:
         return self._course.consent_required
+
+    def at_capacity(self) -> bool:
+        return len(self.__registrations) >= self.__capacity
+
+    def get_pre_reqs(self) -> List[Course]:
+        return self._course.pre_reqs
 
     def view(self) -> Dict[str, object]:
         return {'id': self.id, "course": self.course, "times": self.times}

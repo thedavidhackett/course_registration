@@ -42,7 +42,11 @@ def test_register_student_instructor_consent_required():
     assert registration.status == 'tentative'
 
 def test_register_student_prereqs_not_met():
-    assert False
+    msg : str
+    msg = rs.register(1, 514201, checker)
+    assert msg == "prereqs not met"
 
 def test_register_student_course_full():
-    assert False
+    msg : str
+    msg = rs.register(1, 514102, checker)
+    assert msg == "course is full"

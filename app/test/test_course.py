@@ -11,10 +11,11 @@ def test_get_course_details():
             "id": 51410,
             "name" : "Object Oriented Programming",
             "description": "A class about object oriented programming",
+            "pre_reqs": []
         },
         "times": [
             {"day": "Monday", "start_time": "4:10PM", "end_time": "6:00PM"}
-        ]
+        ],
     }
 
     em : EntityManager = EntityManager(db)

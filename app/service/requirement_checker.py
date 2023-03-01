@@ -1,7 +1,9 @@
 from abc import abstractmethod
-from typing import Optional, Protocol, Tuple
+from typing import  List, Optional, Protocol, Tuple
 
+from model.course import Course
 from model.course import CourseSection
+from model.registration import Registration
 from model.restriction import Restriction
 from model.user import Student
 
@@ -52,11 +54,37 @@ class CourseConsentChecker:
 
         return self.__next.check_requirements(student, course)
 
+class PreReqChecker:
+    def __init__(self, next : RequirementChecker) -> None:
+        self.__next : Optional[RequirementChecker] = next
+
+    def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, str]:
+        c : Course
+        courses_taken : List[int] = [reg.course_section_id // 10 for reg in student.registrations if reg.status == "completed"]
+        for c in course.get_pre_reqs():
+            if c.id not in courses_taken:
+                return False, "prereqs not met"
+
+        return self.__next.check_requirements(student, course)
+
+
+class CourseCapacityChecker:
+    def __init__(self, next : RequirementChecker) -> None:
+        self.__next : Optional[RequirementChecker] = next
+
+    def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, str]:
+        if course.at_capacity():
+            return False, "course is full"
+
+        return self.__next.check_requirements(student, course)
+
 
 def create_registration_requirements_chain() -> RequirementChecker:
     base_checker : BaseChecker = BaseChecker()
     course_consent_checker : CourseConsentChecker = CourseConsentChecker(base_checker)
     student_capacity_checker : StudentCapacityChecker = StudentCapacityChecker(course_consent_checker)
-    restriction_checker : RestrictionChecker = RestrictionChecker(student_capacity_checker)
+    course_capacity_checker : CourseCapacityChecker = CourseCapacityChecker(student_capacity_checker)
+    pre_req_checker : PreReqChecker = PreReqChecker(course_capacity_checker)
+    restriction_checker : RestrictionChecker = RestrictionChecker(pre_req_checker)
 
     return restriction_checker
