@@ -21,3 +21,11 @@ def runner(app):
 def test_home_page(client):
     response = client.get("/")
     assert response.status_code == 200
+
+def test_student_courses_page(client):
+    response = client.get("/student/courses")
+    assert response.status_code == 200
+
+def test_search_course_page(client):
+    response = client.get("/courses")
+    assert response.status_code == 200

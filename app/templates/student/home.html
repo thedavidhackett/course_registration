@@ -1,0 +1,14 @@
+{% extends 'base.html' %} {% block header %}
+<h1>{% block title %}Welcome {{ g.user.first_name }}{% endblock %}</h1>
+{% endblock %} {% block content %}
+<div>
+  <h2>Main Menu</h2>
+  <ul>
+    <li><a href="{{ url_for('student.courses') }}">View courses</a></li>
+    <li>Add a course</li>
+    <li>Drop a course</li>
+    <li>View Grades</li>
+    <li>View Restrictions</li>
+  </ul>
+</div>
+{% endblock %}

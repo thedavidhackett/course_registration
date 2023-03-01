@@ -90,7 +90,7 @@ class TimeSlot(ManagedEntity):
             "end_time": self.end_time}
 
 class CourseSection(ManagedEntity):
-    __id : Mapped[int] = mapped_column("id", primary_key=True)
+    id : Mapped[int] = mapped_column("id", primary_key=True)
     __capacity : Mapped[int] = mapped_column("capacity")
     course_id : Mapped[int] = mapped_column("course_id", ForeignKey("course.id"))
     _course: Mapped["Course"] = relationship(lazy="subquery")
@@ -99,16 +99,12 @@ class CourseSection(ManagedEntity):
 
     def __init__(self, section_id: int, capacity : int, course : Course, times : List[TimeSlot]) -> None:
         super().__init__()
-        self.__id : int = course.id * 10 + section_id
+        self.id : int = course.id * 10 + section_id
         self.__capacity : int = capacity
         self.__times : List[TimeSlot] = times
         self._course : Course = course
         self.__registrations : List[Registration] = []
 
-
-    @property
-    def id(self) -> int:
-        return self.__id
 
     @property
     def course(self) -> Dict[str, object]:

@@ -18,6 +18,7 @@ with Session(db) as session:
     student2 = Student("Roger", "Restriction", "graduate")
     student3 = Student("Nanette", "Nocapacity", "graduate", 1)
     student4 = Student("James", "Fake", "graduate")
+    student5 = Student("Foo", "Bar", "graduate")
     course1 = Course(id=51410, name="Object Oriented Programming",\
          description="A class about object oriented programming")
     course2 = Course(id=51230, name="User Interface and User Experience Design",\
@@ -27,7 +28,7 @@ with Session(db) as session:
 
     course3.add_pre_req(course1)
 
-    session.add_all([course1, course2, course3, student1, student2, student3])
+    session.add_all([course1, course2, course3, student1, student2, student3, student4, student5])
     session.commit()
 
     time_slot1 = TimeSlot("Monday", time(16, 10), time(18, 0))
@@ -44,7 +45,9 @@ with Session(db) as session:
     session.commit()
 
     reg1 = Registration("registered", student3.id, course_section4.id)
-    session.add(reg1)
+    reg2 = Registration("registered", student5.id, course_section1.id)
+    reg3 = Registration("pending", student5.id, course_section2.id)
+    session.add_all([reg1, reg2, reg3])
     session.commit()
 
     me = session.get(Student, 1)

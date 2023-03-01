@@ -1,0 +1,33 @@
+{% extends 'base.html' %} {% block header %}
+<h1>{% block title %}Courses{% endblock %}</h1>
+{% endblock %} {% block content %}
+<div>
+  {% if courses.registered|length > 0 %}
+  <h2>Registered</h2>
+  <ul>
+    {% for c in courses.registered %}
+    <li>{{ c.course.name }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %} {% if courses.pending|length > 0 %}
+  <h2>Pending</h2>
+  <p>These are courses where registration is pending instructor approval</p>
+  <ul>
+    {% for c in courses.pending %}
+    <li>{{ c.course.name }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %} {% if courses.tentative|length > 0 %}
+  <h2>Tentative</h2>
+  <p>
+    These are courses where registration is tentative on department chair
+    approval
+  </p>
+  <ul>
+    {% for c in courses.tentative %}
+    <li>{{ c.course.name }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endblock %}

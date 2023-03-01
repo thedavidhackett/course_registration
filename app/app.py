@@ -1,5 +1,7 @@
 import os
 from flask import Flask
+from controller import default_controller
+from controller import student_controller
 
 def create_app(testing=False):
     app = Flask(__name__, instance_relative_config=True)
@@ -10,10 +12,9 @@ def create_app(testing=False):
     if testing:
         app.config.update({'TESTING': True})
 
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
+    app.register_blueprint(default_controller.bp)
+    app.register_blueprint(student_controller.bp)
+
 
     return app
 
