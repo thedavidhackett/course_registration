@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from controller import course_controller
 from controller import default_controller
 from controller import student_controller
 
@@ -14,6 +15,7 @@ def create_app(testing=False):
 
     app.register_blueprint(default_controller.bp)
     app.register_blueprint(student_controller.bp)
+    app.register_blueprint(course_controller.bp)
 
 
     return app

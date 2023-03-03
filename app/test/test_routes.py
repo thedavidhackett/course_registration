@@ -29,3 +29,7 @@ def test_student_courses_page(client):
 def test_search_course_page(client):
     response = client.get("/courses")
     assert response.status_code == 200
+
+def test_course_page(client):
+    response = client.get("/courses/514101")
+    assert response.status_code == 200
