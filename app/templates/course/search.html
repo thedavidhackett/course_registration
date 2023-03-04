@@ -1,0 +1,18 @@
+{% extends 'base.html' %} {% block header %}
+<h1>{% block title %}Courses Search{% endblock %}</h1>
+{% endblock %} {% block content %}
+<div>
+  {% from "_formhelpers.html" import render_field %}
+  <form method="post">
+    <dl>{{ render_field(form.course_id) }}</dl>
+    <p><input type="submit" value="Search" /></p>
+  </form>
+</div>
+<div>
+  {% from "_macros.html" import display_course %}
+  <h2>Results</h2>
+  {% if courses|length == 0 %} No courses match this criteria {% else %}
+  <div>{% for c in courses %}{{ display_course(c) }}{% endfor %}</div>
+  {% endif %}
+</div>
+{% endblock %}

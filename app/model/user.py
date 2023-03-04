@@ -80,3 +80,11 @@ class Student(User):
 
     def add_registration(self, r : Registration) -> None:
         self.__registrations.append(r)
+
+    def is_enrolled_in_course(self, course_section_id : int) -> bool:
+        reg : Registration
+        for reg in self.__registrations:
+            if reg.course_section_id == course_section_id:
+                return True
+
+        return False

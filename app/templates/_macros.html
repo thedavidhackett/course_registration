@@ -1,0 +1,7 @@
+{% macro display_course(course) %}
+<div>
+  <a href="{{ url_for('course.view', id=course.id) }}"
+    >{{ course.id }} - {{ course.course.name }}</a
+  >
+</div>
+{% endmacro %}

@@ -14,7 +14,7 @@ from model.user import Student
 from model.course import CourseSection
 from service.entity_manager import EntityManager
 
-bp : Blueprint = Blueprint('course', __name__, url_prefix='/courses')
+bp : Blueprint = Blueprint('course', __name__, url_prefix='/course')
 em : EntityManager = EntityManager(db)
 
 @bp.before_app_request
@@ -30,4 +30,9 @@ def search():
         stmt : Select = select(CourseSection).where(CourseSection.course_id == form.course_id.data)
         courses = em.get_by_criteria(stmt)
 
-    return render_template('courses/search.html', courses=courses, form=form)
+    return render_template('course/search.html', courses=courses, form=form)
+
+@bp.route('/<int:id>', methods=(['GET', 'POST']))
+def view(id : int):
+    course : CourseSection = em.get_by_id(CourseSection, id)
+    return render_template('course/view.html', course=course)

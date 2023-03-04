@@ -25,7 +25,11 @@
   </p>
   <ul>
     {% for c in courses.tentative %}
-    <li>{{ c.course.name }}</li>
+    <li>
+      <a href="{{ url_for('course.view'), id=c.id }}"
+        >{{ c.course.name }} - {{c.id}}</a
+      >
+    </li>
     {% endfor %}
   </ul>
   {% endif %}
