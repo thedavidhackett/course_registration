@@ -4,6 +4,11 @@
 <nav>
   <h1>Course Registration</h1>
 </nav>
+{% from "_macros.html" import display_notification %}
+<div>
+  {% if notifications is defined %}{% for n in notifications %} {{
+  display_notification(n) }} {% endfor %}{% endif %}
+</div>
 <section class="content">
   <header>{% block header %}{% endblock %}</header>
   {% for message in get_flashed_messages() %}

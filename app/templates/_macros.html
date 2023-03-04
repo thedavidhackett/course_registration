@@ -4,4 +4,6 @@
     >{{ course.id }} - {{ course.course.name }}</a
   >
 </div>
+{% endmacro %} {% macro display_notification(n) %}
+<div class="{{ n.type }}"><p>{{ n.msg }}</p></div>
 {% endmacro %}

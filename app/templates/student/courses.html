@@ -1,37 +1,30 @@
 {% extends 'base.html' %} {% block header %}
 <h1>{% block title %}Courses{% endblock %}</h1>
-{% endblock %} {% block content %}
+{% endblock %} {% block content %} {% from "_macros.html" import display_course
+%}
 <div>
   {% if courses.registered|length > 0 %}
   <h2>Registered</h2>
-  <ul>
-    {% for c in courses.registered %}
-    <li>{{ c.course.name }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %} {% if courses.pending|length > 0 %}
-  <h2>Pending</h2>
-  <p>These are courses where registration is pending instructor approval</p>
-  <ul>
-    {% for c in courses.pending %}
-    <li>{{ c.course.name }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %} {% if courses.tentative|length > 0 %}
-  <h2>Tentative</h2>
-  <p>
-    These are courses where registration is tentative on department chair
-    approval
-  </p>
-  <ul>
-    {% for c in courses.tentative %}
-    <li>
-      <a href="{{ url_for('course.view'), id=c.id }}"
-        >{{ c.course.name }} - {{c.id}}</a
-      >
-    </li>
-    {% endfor %}
-  </ul>
-  {% endif %}
+  <div>
+    {% for c in courses.registered %} {{ display_course(c) }} {% endfor %}
+    <div>
+      {% endif %} {% if courses.pending|length > 0 %}
+      <h2>Pending</h2>
+      <p>These are courses where registration is pending instructor approval</p>
+      <div>
+        {% for c in courses.pending %} {{ display_course(c) }} {% endfor %}
+      </div>
+      {% endif %} {% if courses.tentative|length > 0 %}
+      <h2>Tentative</h2>
+      <p>
+        These are courses where registration is tentative on department chair
+        approval
+      </p>
+      <div>
+        {% for c in courses.tentative %} {{ display_course(c) }} {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endblock %}
+  </div>
 </div>
-{% endblock %}
