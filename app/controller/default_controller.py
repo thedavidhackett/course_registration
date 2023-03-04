@@ -7,11 +7,11 @@ from flask import session
 
 from db import db
 from db import notifications
-from model.user import Student
 from model.notification import Notification
-from model.notification import NotificationCreator
-from model.notification import InfoNotificationCreator
+from model.user import Student
 from service.entity_manager import EntityManager
+from service.notification_factory import NotificationCreator
+from service.notification_factory import InfoNotificationCreator
 
 bp = Blueprint('default', __name__, url_prefix='/')
 em = EntityManager(db)
