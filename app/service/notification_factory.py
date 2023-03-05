@@ -1,19 +1,24 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 
-from model.notification import InfoNotification
+from model.notification import BasicNotification
+from model.notification import CoursePendingNotification
+from model.notification import CourseTentativeNotification
 from model.notification import Notification
-from model.notification import WarningNotification
 
 class NotificationCreator(ABC):
     @abstractmethod
     def factory_method(self, data : Dict[str, Any]) -> Notification:
         pass
 
-class InfoNotificationCreator(ABC):
+class BasicNotificationCreator(NotificationCreator):
     def factory_method(self, data : Dict[str, Any]) -> Notification:
-        return InfoNotification(id=data["_id"], msg=data["msg"], type="info")
+        return BasicNotification(msg=data["msg"], type="info")
 
-class WarningNotificationCreator(ABC):
-    def factory_method(self, data : Dict[str, Any]) -> Notification:
-        return WarningNotification(id=data["_id"], msg=data["msg"], type="warning")
+class CoursePendingNotificationCreator(NotificationCreator):
+    def factory_method(self, data: Dict[str, Any]) -> Notification:
+        return CoursePendingNotification(msg=data['msg'], type=data['type'], course_id=data['course_id'])
+
+class CourseTentativeNotificationCreator(NotificationCreator):
+    def factory_method(self, data: Dict[str, Any]) -> Notification:
+        return CourseTentativeNotification(msg=data['msg'], type=data['type'], course_id=data['course_id'])

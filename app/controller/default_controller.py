@@ -11,11 +11,11 @@ from model.notification import Notification
 from model.user import Student
 from service.entity_manager import EntityManager
 from service.notification_factory import NotificationCreator
-from service.notification_factory import InfoNotificationCreator
+from service.notification_factory import BasicNotificationCreator
 
 bp = Blueprint('default', __name__, url_prefix='/')
 em = EntityManager(db)
-notification_creator : NotificationCreator = InfoNotificationCreator()
+notification_creator : NotificationCreator = BasicNotificationCreator()
 
 @bp.before_app_request
 def load_logged_in_user():
@@ -25,6 +25,6 @@ def load_logged_in_user():
 @bp.route('/', methods=(['GET']))
 def home():
     msgs : List[Notification] = [notification_creator.factory_method(data)\
-                            for data in notifications.find({"student_id": 5, "type": "info"})]
+                            for data in notifications.find({"student_id": 5})]
 
     return render_template('student/home.html', notifications=msgs)

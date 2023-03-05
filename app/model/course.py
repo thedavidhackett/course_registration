@@ -107,8 +107,8 @@ class CourseSection(ManagedEntity):
 
 
     @property
-    def course(self) -> Dict[str, object]:
-        return self._course.view()
+    def course(self) -> Course:
+        return self._course
 
     @property
     def times(self) -> List[Dict[str, object]]:
@@ -130,7 +130,7 @@ class CourseSection(ManagedEntity):
         return self._course.pre_reqs
 
     def view(self) -> Dict[str, object]:
-        return {'id': self.id, "course": self.course, "times": self.times}
+        return {'id': self.id, "course": self.course.view(), "times": self.times}
 
     def add_registration(self, r : Registration) -> None:
         self.__registrations.append(r)

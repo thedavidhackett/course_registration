@@ -11,15 +11,15 @@ from db import notifications
 from model.user import Student
 from model.course import CourseSection
 from model.notification import Notification
-from model.notification import NotificationCreator
-from model.notification import InfoNotificationCreator
 from service.entity_manager import EntityManager
+from service.notification_factory import NotificationCreator
+from service.notification_factory import BasicNotificationCreator
 from service.student_service import StudentService
 
 bp : Blueprint = Blueprint('student', __name__, url_prefix='/student')
 em : EntityManager = EntityManager(db)
 ss : StudentService = StudentService(em)
-notification_creator : NotificationCreator = InfoNotificationCreator()
+notification_creator : NotificationCreator = BasicNotificationCreator()
 
 @bp.before_app_request
 def load_logged_in_user():
