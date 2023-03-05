@@ -11,7 +11,6 @@ from sqlalchemy.orm import relationship
 from .base import ManagedEntity
 from .registration import Registration
 
-
 class Course(ManagedEntity):
     __id : Mapped[int] = mapped_column("id", primary_key=True)
     __name : Mapped[str] = mapped_column("name", String(100))

@@ -5,5 +5,17 @@
   >
 </div>
 {% endmacro %} {% macro display_notification(n) %}
-<div class="{{ n.type }}"><p>{{ n.msg }}</p></div>
+<div class="{{ n.type }}">
+  <p>{{ n.msg }}</p>
+  {% if n.type == course_pending %}<button
+    href="{{ url_for('course.pending', id=n.course_id) }}"
+  >
+    Request Permission
+  </button>
+  {% elif n.type == course_tentative %}
+  <button href="{{ url_for('course.tentative', id=n.course_id) }}">
+    Request Permission
+  </button>
+  {% endif %}
+</div>
 {% endmacro %}

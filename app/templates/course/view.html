@@ -10,10 +10,12 @@
 <div>
   <h2>Description</h2>
   <p>{{ course.course.description }}</p>
-  {% if g.user.is_enrolled_in_course(course.id) %}
-  <button>Drop</button>
-  {% else %}
-  <button>Register</button>
-  {% endif %}
+  <form method="post">
+    {% if g.user.is_enrolled_in_course(course.id) %}
+    <button type="submit" , name="drop" , value="drop">Drop</button>
+    {% else %}
+    <button type="submit" , name="register" , value="register">Register</button>
+    {% endif %}
+  </form>
 </div>
 {% endblock %}
