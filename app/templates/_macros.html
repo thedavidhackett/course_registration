@@ -7,15 +7,22 @@
 {% endmacro %} {% macro display_notification(n) %}
 <div class="{{ n.type }}">
   <p>{{ n.msg }}</p>
-  {% if n.type == course_pending %}<button
-    href="{{ url_for('course.pending', id=n.course_id) }}"
+  {% if n.type == "course_pending" %}
+  <form
+    action="{{ url_for('course.pending', id=n.course_id) }}"
+    ,
+    method="post"
   >
-    Request Permission
-  </button>
-  {% elif n.type == course_tentative %}
-  <button href="{{ url_for('course.tentative', id=n.course_id) }}">
-    Request Permission
-  </button>
+    <button type="submit">Request Permission</button>
+  </form>
+  {% endif %} {% if n.type == "course_tentative" %}
+  <form
+    action="{{ url_for('course.tentative', id=n.course_id) }}"
+    ,
+    method="post"
+  >
+    <button type="submit">Request Permission</button>
+  </form>
   {% endif %}
 </div>
 {% endmacro %}

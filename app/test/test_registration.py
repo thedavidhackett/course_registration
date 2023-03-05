@@ -3,12 +3,13 @@ from model.course import CourseSection
 from model.registration import Registration
 from model.user import Student
 from service.entity_manager import EntityManager
+from service.notification_factory import BasicNotificationCreator
 from service.registration_service import RegistrationService
 from service.requirement_checker import create_registration_requirements_chain
 from db import db
 
 em : EntityManager = EntityManager(db)
-rs : RegistrationService = RegistrationService(em, create_registration_requirements_chain())
+rs : RegistrationService = RegistrationService(em, create_registration_requirements_chain(), BasicNotificationCreator())
 
 
 def test_register_student():
@@ -50,4 +51,9 @@ def test_register_tentative():
     assert registration.status == "tentative"
 
 def test_drop_class():
-    pass
+    notification = rs.drop_class(1, 514101)
+    assert notification.msg == "Course 514101 was successfully dropped"
+
+def test_drop_class_not_registered():
+    notification = rs.drop_class(1, 514102)
+    assert notification.msg == "You are not enrolled in this course"

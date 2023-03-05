@@ -15,16 +15,16 @@ from service.entity_manager import EntityManager
 from service.notification_factory import NotificationCreator
 from service.notification_factory import BasicNotificationCreator
 from service.student_service import StudentService
+from service.student_service import StudentServiceInterface
 
 bp : Blueprint = Blueprint('student', __name__, url_prefix='/student')
 em : EntityManager = EntityManager(db)
-ss : StudentService = StudentService(em)
+ss : StudentServiceInterface = StudentService(em)
 notification_creator : NotificationCreator = BasicNotificationCreator()
 
 @bp.before_app_request
 def load_logged_in_user():
-    g.user = em.get_by_id(Student, 5)
-
+    g.user = ss.get_student_by_id(5)
 
 @bp.route('/courses', methods=(['GET']))
 def courses():

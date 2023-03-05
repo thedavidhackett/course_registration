@@ -1,16 +1,29 @@
+from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
 from sqlalchemy import select
 from sqlalchemy.sql.expression import Select
 
-from .entity_manager import EntityManager
+from .entity_manager import EntityManagerInterface
 from model.course import CourseSection
 from model.registration import Registration
 from model.user import Student
 
+class StudentServiceInterface(ABC):
+    @abstractmethod
+    def get_student_by_id(self, id : int) -> Optional[Student]:
+        pass
+
+    @abstractmethod
+    def get_student_courses(self, id : int) -> Dict[str, List[CourseSection]]:
+        pass
+
 class StudentService:
-    def __init__(self, em : EntityManager) -> None:
-        self.__em = em
+    def __init__(self, em : EntityManagerInterface) -> None:
+        self.__em : EntityManagerInterface = em
+
+    def get_student_by_id(self, id : int) -> Student:
+        return self.__em.get_by_id(Student, id)
 
     def get_student_courses(self, student : Student) -> Dict[str, List[CourseSection]]:
         registered_ids : List[int] = []

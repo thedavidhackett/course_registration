@@ -15,17 +15,25 @@ from form.course_search import CourseSearch
 from model.course import CourseSection
 from model.notification import Notification
 from model.user import Student
+from service.course_service import CourseService
+from service.course_service import CourseServiceInterface
 from service.entity_manager import EntityManager
+from service.notification_factory import BasicNotificationCreator
 from service.registration_service import RegistrationService
+from service.registration_service import RegistrationServiceInterface
 from service.requirement_checker import create_registration_requirements_chain
+from service.student_service import StudentService
+from service.student_service import StudentServiceInterface
 
 bp : Blueprint = Blueprint('course', __name__, url_prefix='/course')
 em : EntityManager = EntityManager(db)
-rs : RegistrationService = RegistrationService(em, create_registration_requirements_chain())
+ss : StudentServiceInterface = StudentService(em)
+rs : RegistrationServiceInterface = RegistrationService(em, create_registration_requirements_chain(), BasicNotificationCreator())
+cs : CourseServiceInterface = CourseService(em)
 
 @bp.before_app_request
 def load_logged_in_user():
-    g.user = em.get_by_id(Student, 5)
+    g.user = ss.get_student_by_id(5)
 
 @bp.route('', methods=(['GET', 'POST']))
 def search():
@@ -33,8 +41,7 @@ def search():
     form : CourseSearch = CourseSearch(request.form)
 
     if request.method == "POST" and form.validate():
-        stmt : Select = select(CourseSection).where(CourseSection.course_id == form.course_id.data)
-        courses = em.get_by_criteria(stmt)
+        courses = cs.search(course_id=form.course_id.data)
 
     return render_template('course/search.html', courses=courses, form=form)
 
@@ -48,7 +55,8 @@ def view(id : int):
             notification : Notification = rs.register(g.user.id, id)
             course_notifications.append(notification)
         elif request.form.get("drop") == "drop":
-            pass
+            notification : Notification = rs.drop_class(g.user.id, id)
+            course_notifications.append(notification)
 
     return render_template('course/view.html', course=course, notifications=course_notifications)
 
