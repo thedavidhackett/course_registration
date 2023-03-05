@@ -1,5 +1,5 @@
-from abc import abstractmethod
-from typing import  List, Optional, Protocol, Tuple
+from abc import ABC, abstractmethod
+from typing import  List, Optional, Tuple
 
 from model.course import Course, CourseSection
 from model.notification import Notification
@@ -7,29 +7,27 @@ from model.restriction import Restriction
 from model.user import Student
 from service.notification_factory import BasicNotificationCreator, CoursePendingNotificationCreator, CourseTentativeNotificationCreator, NotificationCreator
 
-class RequirementChecker(Protocol):
-    __next : Optional["RequirementChecker"]
+class RequirementChecker(ABC):
     __notification_factory : NotificationCreator
 
     @abstractmethod
     def check_requirements(self, student : Student, course : CourseSection,) -> Tuple[bool, Notification]:
         pass
 
-class BaseChecker:
-    def __init__(self, notification_factory : NotificationCreator, next : RequirementChecker = None) -> None:
+class BaseChecker(RequirementChecker):
+    def __init__(self, notification_factory : NotificationCreator) -> None:
         self.__notification_factory : NotificationCreator = notification_factory
-        self.__next : Optional[RequirementChecker] = next
 
     def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, Notification]:
         return True, self.__notification_factory.factory_method(\
             {"msg": f"You successfully registered for {course.id} - {course.course.name}", "type": "success"})
 
-class RestrictionChecker:
+class RestrictionChecker(RequirementChecker):
     def __init__(self, notification_factory : NotificationCreator, next : RequirementChecker) -> None:
         self.__notification_factory : NotificationCreator = notification_factory
-        self.__next : Optional[RequirementChecker] = next
+        self.__next : RequirementChecker = next
 
-    def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, str]:
+    def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, Notification]:
         r : Restriction
         for r in student.restrictions:
             if not r.can_register():
@@ -37,12 +35,12 @@ class RestrictionChecker:
 
         return self.__next.check_requirements(student, course)
 
-class StudentCapacityChecker:
+class StudentCapacityChecker(RequirementChecker):
     def __init__(self, notification_factory : NotificationCreator, next : RequirementChecker) -> None:
         self.__notification_factory : NotificationCreator = notification_factory
-        self.__next : Optional[RequirementChecker] = next
+        self.__next : RequirementChecker = next
 
-    def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, str]:
+    def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, Notification]:
         if student.at_capacity():
             return False, self.__notification_factory.factory_method(\
                 {"msg": "Adding this course would overload your schedule. Would you like to request permission?", \
@@ -50,12 +48,12 @@ class StudentCapacityChecker:
 
         return self.__next.check_requirements(student, course)
 
-class CourseConsentChecker:
+class CourseConsentChecker(RequirementChecker):
     def __init__(self, notification_factory : NotificationCreator, next : RequirementChecker) -> None:
         self.__notification_factory : NotificationCreator = notification_factory
-        self.__next : Optional[RequirementChecker] = next
+        self.__next : RequirementChecker = next
 
-    def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, str]:
+    def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, Notification]:
         if course.consent_required:
             return False, self.__notification_factory.factory_method(\
                 {"msg": "This course requires instructor approval? Would you like to request it",\
@@ -63,12 +61,12 @@ class CourseConsentChecker:
 
         return self.__next.check_requirements(student, course)
 
-class PreReqChecker:
+class PreReqChecker(RequirementChecker):
     def __init__(self, notification_factory : NotificationCreator, next : RequirementChecker) -> None:
         self.__notification_factory : NotificationCreator = notification_factory
-        self.__next : Optional[RequirementChecker] = next
+        self.__next : RequirementChecker = next
 
-    def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, str]:
+    def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, Notification]:
         c : Course
         courses_taken : List[int] = [reg.course_section_id // 10 for reg in student.registrations if reg.status == "completed"]
         for c in course.get_pre_reqs():
@@ -79,12 +77,12 @@ class PreReqChecker:
         return self.__next.check_requirements(student, course)
 
 
-class CourseCapacityChecker:
+class CourseCapacityChecker(RequirementChecker):
     def __init__(self, notification_factory : NotificationCreator, next : RequirementChecker) -> None:
         self.__notification_factory : NotificationCreator = notification_factory
-        self.__next : Optional[RequirementChecker] = next
+        self.__next : RequirementChecker = next
 
-    def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, str]:
+    def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, Notification]:
         if course.at_capacity():
             return False, self.__notification_factory.factory_method(\
                     {"msg": "This course is full", "type": "warning"})

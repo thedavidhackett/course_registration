@@ -40,11 +40,11 @@ def view(id : int):
 
     if request.method == "POST":
         if request.form.get("register") == "register":
-            notification : Notification = rs.register(g.user.id, id)
-            course_notifications.append(notification)
+            reg_notification : Notification = rs.register(g.user.id, id)
+            course_notifications.append(reg_notification)
         elif request.form.get("drop") == "drop":
-            notification : Notification = rs.drop_class(g.user.id, id)
-            course_notifications.append(notification)
+            drop_notification : Notification = rs.drop_class(g.user.id, id)
+            course_notifications.append(drop_notification)
 
     return render_template('course/view.html', course=course, notifications=course_notifications)
 

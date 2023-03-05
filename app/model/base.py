@@ -1,14 +1,15 @@
-from typing import Dict, Protocol
+from typing import Dict, Optional, Protocol
 
-from sqlalchemy.orm import declared_attr, declarative_base
+from sqlalchemy.orm import declared_attr, DeclarativeBase
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 class ManagedEntity(Base):
     __abstract__ = True
 
     @declared_attr.directive
-    def __tablename__(cls) -> str:
+    def __tablename__(cls) -> Optional[str]:
         name : str = cls.__name__[0].lower()
         for char in cls.__name__[1:]:
             if (char.isupper()):

@@ -1,26 +1,35 @@
+from abc import ABC, abstractmethod
 from typing import Optional, Type, List
-from model.base import ManagedEntity
+
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import Select
 
+from model.base import ManagedEntity
 
-class EntityManagerInterface:
+
+
+class EntityManagerInterface(ABC):
+    @abstractmethod
     def get_by_id(self, Cls : Type[ManagedEntity], id : int) -> Optional[ManagedEntity]:
         pass
 
+    @abstractmethod
     def add(self, obj : ManagedEntity) -> None:
         pass
 
+    @abstractmethod
     def get_by_criteria(self, statement : Select) -> List[ManagedEntity]:
         pass
 
+    @abstractmethod
     def get_one_by_criteria(self, statement : Select) -> Optional[ManagedEntity]:
         pass
 
+    @abstractmethod
     def delete(self, obj : ManagedEntity) -> None:
         pass
 
-class EntityManager:
+class EntityManager(EntityManagerInterface):
     def __init__(self, db) -> None:
         self.__db = Session(db)
 
