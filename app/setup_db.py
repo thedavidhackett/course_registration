@@ -1,23 +1,17 @@
 from datetime import time
-import pymongo
-from pymongo import MongoClient
-from sqlalchemy import create_engine
-from sqlalchemy import select
+
 from sqlalchemy.orm import Session
+from db import db, notifications
 from model.base import Base
 from model.course import Course, CourseSection, TimeSlot
 from model.registration import Registration
 from model.restriction import FeeRestriction
 from model.user import Student
 
-db = create_engine("mysql+pymysql://course_registration:course_registration@localhost:3306/course_registration")
-client = MongoClient(host='localhost',port=27017, username='root',password='pass', authSource="admin")
-mongo_db = client.notification_db
-notification = mongo_db.notification
-notification.drop()
-notification.insert_many([{"student_id": 1, "type": "restriction", "msg": "You have a restriction"},\
+notifications.drop()
+notifications.insert_many([{"student_id": 1, "type": "restriction", "msg": "You have a restriction"},\
                           {"student_id": 5, "type": "info", "msg": "This is a notification about something"}])
-print(notification.find_one({"student_id": 1}))
+print(notifications.find_one({"student_id": 1}))
 Base.metadata.drop_all(db)
 Base.metadata.create_all(db)
 

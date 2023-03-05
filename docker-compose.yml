@@ -1,8 +1,8 @@
 version: "3"
 
 services:
-  flask-app:
-    container_name: flask-app
+  course-registration-app-dh:
+    container_name: course-registration-app-dh
     build: app
     restart: always
     ports:
@@ -25,6 +25,18 @@ services:
       - "3306:3306"
     volumes:
       - ./database:/var/lib/mysql
+    networks:
+      - backend
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: notification_db
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pass
+    ports:
+      - 27017:27017
     networks:
       - backend
 

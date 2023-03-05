@@ -3,5 +3,7 @@
 Flask==2.2.2
 SQLAlchemy==2.0.3
 PyMySql==1.0.2
+pytest
 pymongo
 Flask-PyMongo
+Flask-WTF
