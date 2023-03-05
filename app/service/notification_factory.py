@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 
-from model.notification import BasicNotification
-from model.notification import CoursePendingNotification
-from model.notification import CourseTentativeNotification
-from model.notification import Notification
+from model.notification import BasicNotification, CoursePendingNotification, CourseTentativeNotification, Notification
 
 class NotificationCreator(ABC):
     @abstractmethod

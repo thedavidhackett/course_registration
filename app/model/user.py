@@ -1,10 +1,8 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Dict, List
 
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import ManagedEntity
 from .registration import Registration

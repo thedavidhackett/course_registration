@@ -1,12 +1,8 @@
 from typing import Dict, List
 from datetime import time
 
-from sqlalchemy import ForeignKey
-from sqlalchemy import String
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import relationship
-
+from sqlalchemy import ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import ManagedEntity
 from .registration import Registration

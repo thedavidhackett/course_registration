@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
-from sqlalchemy import select
 from sqlalchemy.sql.expression import Select
 
 from .entity_manager import EntityManagerInterface

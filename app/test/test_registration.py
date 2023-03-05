@@ -1,12 +1,9 @@
-from typing import Dict, List
-from model.course import CourseSection
+from db import db
 from model.registration import Registration
-from model.user import Student
 from service.entity_manager import EntityManager
 from service.notification_factory import BasicNotificationCreator
 from service.registration_service import RegistrationService
 from service.requirement_checker import create_registration_requirements_chain
-from db import db
 
 em : EntityManager = EntityManager(db)
 rs : RegistrationService = RegistrationService(em, create_registration_requirements_chain(), BasicNotificationCreator())

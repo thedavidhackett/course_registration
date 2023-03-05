@@ -1,29 +1,17 @@
-from typing import Dict, List
+from typing import List
 
-from flask import Blueprint
-from flask import g
-from flask import render_template
-from flask import redirect
-from flask import request
-from flask import session
-from flask import url_for
-from sqlalchemy import select
-from sqlalchemy.sql.expression import Select
+from flask import Blueprint, g,render_template, redirect, request, url_for
 
 from db import db
 from form.course_search import CourseSearch
 from model.course import CourseSection
 from model.notification import Notification
-from model.user import Student
-from service.course_service import CourseService
-from service.course_service import CourseServiceInterface
+from service.course_service import CourseService, CourseServiceInterface
 from service.entity_manager import EntityManager
 from service.notification_factory import BasicNotificationCreator
-from service.registration_service import RegistrationService
-from service.registration_service import RegistrationServiceInterface
+from service.registration_service import RegistrationService, RegistrationServiceInterface
 from service.requirement_checker import create_registration_requirements_chain
-from service.student_service import StudentService
-from service.student_service import StudentServiceInterface
+from service.student_service import StudentService, StudentServiceInterface
 
 bp : Blueprint = Blueprint('course', __name__, url_prefix='/course')
 em : EntityManager = EntityManager(db)

@@ -1,6 +1,5 @@
 from typing import Optional, Type, List
 from model.base import ManagedEntity
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import Select
 

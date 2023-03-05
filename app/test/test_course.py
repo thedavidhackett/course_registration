@@ -1,9 +1,9 @@
 from typing import Dict, List
+
+from db import db
 from model.course import CourseSection
 from service.entity_manager import EntityManager
 from service.course_service import CourseService
-
-from db import db
 
 em : EntityManager = EntityManager(db)
 cs : CourseService = CourseService(em)

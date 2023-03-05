@@ -1,10 +1,11 @@
 from typing import Dict, List
+
+from db import db
 from model.course import CourseSection
 from model.user import Student
 from service.entity_manager import EntityManager
 from service.student_service import StudentService
 
-from db import db
 em : EntityManager = EntityManager(db)
 ss : StudentService = StudentService(em)
 

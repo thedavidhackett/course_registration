@@ -1,10 +1,7 @@
 from typing import Optional
 
-from sqlalchemy import ForeignKey
-from sqlalchemy import String
-from sqlalchemy.orm import declared_attr
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy import ForeignKey, String
+from sqlalchemy.orm import declared_attr, Mapped, mapped_column
 
 from .base import ManagedEntity
 

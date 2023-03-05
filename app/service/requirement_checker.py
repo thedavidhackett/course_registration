@@ -1,15 +1,11 @@
 from abc import abstractmethod
 from typing import  List, Optional, Protocol, Tuple
 
-from model.course import Course
-from model.course import CourseSection
+from model.course import Course, CourseSection
 from model.notification import Notification
 from model.restriction import Restriction
 from model.user import Student
-from service.notification_factory import BasicNotificationCreator
-from service.notification_factory import CoursePendingNotificationCreator
-from service.notification_factory import CourseTentativeNotificationCreator
-from service.notification_factory import NotificationCreator
+from service.notification_factory import BasicNotificationCreator, CoursePendingNotificationCreator, CourseTentativeNotificationCreator, NotificationCreator
 
 class RequirementChecker(Protocol):
     __next : Optional["RequirementChecker"]

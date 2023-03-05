@@ -1,5 +1,4 @@
-from abc import ABC, abstractmethod
-from typing import Any, Dict, Type
+from abc import ABC
 
 class Notification(ABC):
     def __init__(self, msg : str, type : str) -> None:
@@ -10,7 +9,6 @@ class Notification(ABC):
 class BasicNotification(Notification):
     def __init__(self, msg: str, type: str) -> None:
         super().__init__(msg, type)
-
 
 class CoursePendingNotification(Notification):
     def __init__(self, msg: str, type: str, course_id : int) -> None:

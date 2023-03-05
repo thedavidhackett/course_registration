@@ -1,21 +1,12 @@
 from typing import Dict, List
 
-from flask import Blueprint
-from flask import flash
-from flask import g
-from flask import render_template
-from flask import session
+from flask import Blueprint, g, render_template
 
 from db import db
-from db import notifications
-from model.user import Student
 from model.course import CourseSection
-from model.notification import Notification
 from service.entity_manager import EntityManager
-from service.notification_factory import NotificationCreator
-from service.notification_factory import BasicNotificationCreator
-from service.student_service import StudentService
-from service.student_service import StudentServiceInterface
+from service.notification_factory import BasicNotificationCreator, NotificationCreator
+from service.student_service import StudentService, StudentServiceInterface
 
 bp : Blueprint = Blueprint('student', __name__, url_prefix='/student')
 em : EntityManager = EntityManager(db)

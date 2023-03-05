@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import List
 
 from sqlalchemy import select
 from sqlalchemy.sql.expression import Select

@@ -1,7 +1,6 @@
 from typing import Dict, Protocol
 
-from sqlalchemy.orm import declared_attr
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declared_attr, declarative_base
 
 Base = declarative_base()
 
