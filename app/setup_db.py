@@ -3,7 +3,7 @@ from datetime import time
 from sqlalchemy.orm import Session
 from db import db, notifications
 from model.base import Base
-from model.course import Course, CourseSection, TimeSlot
+from model.course import Course, CourseSection, LabSection, TimeSlot
 from model.registration import Registration
 from model.restriction import FeeRestriction
 from model.user import Student
@@ -28,22 +28,35 @@ with Session(db) as session:
     course3 = Course(id=51420, name="Advanced Object Oriented Programming", \
                      description="For students who took objected oriented programming and want to learn more")
 
+    course4 = Course(id=51300, name="Compliers", description="A course on compliers")
+
     course3.add_pre_req(course1)
 
-    session.add_all([course1, course2, course3, student1, student2, student3, student4, student5])
+    session.add_all([course1, course2, course3, course4, student1, student2, student3, student4, student5])
     session.commit()
 
     time_slot1 = TimeSlot("Monday", time(16, 10), time(18, 0))
     time_slot2 = TimeSlot("Wednesday", time(17, 30), time(20, 30))
     time_slot3 = TimeSlot("Thursday", time(17, 30), time(20, 30))
     time_slot4 = TimeSlot("Wednesday", time(16, 10), time(18, 0))
+    time_slot5 = TimeSlot("Tuesday", time(17,30), time(20,30))
+    time_slot6 = TimeSlot("Friday", time(12,0), time(13,0))
+    time_slot7 = TimeSlot("Friday", time(12,0), time(13,0))
+
+    session.add_all([time_slot1, time_slot2, time_slot3, time_slot4, time_slot5, time_slot6, time_slot7])
+    session.commit()
 
     course_section1 = CourseSection(section_id=1, capacity=30, course=course1, times=[time_slot1])
     course_section2 = CourseSection(section_id=1, capacity=30, course=course2, times=[time_slot2])
     course_section3 = CourseSection(section_id=1, capacity=30, course=course3, times=[time_slot3])
     course_section4 = CourseSection(section_id=2, capacity=1, course=course1, times=[time_slot4])
+    course_section5 = CourseSection(section_id=1, capacity=30, course=course4, times=[time_slot5])
+    lab_section1 = LabSection(section_id=1, capacity=15, course=course4, times=[time_slot6])
+    lab_section2 = LabSection(section_id=2, capacity=15, course=course4, times=[time_slot7])
+
     restriction : FeeRestriction = FeeRestriction(2)
-    session.add_all([course_section1, course_section2, course_section3, course_section4, restriction])
+    session.add_all([course_section1, course_section2, course_section3, course_section4,\
+                      course_section5, lab_section1, lab_section2, restriction])
     session.commit()
 
     reg1 = Registration("registered", student3.id, course_section4.id)
@@ -55,6 +68,10 @@ with Session(db) as session:
     me = session.get(Student, 1)
 
     course = session.get(CourseSection, 514201)
+
+    lab = session.get(LabSection, 5130001)
+
+    print(lab.course.view())
 
     print(me.view())
     print(course.view())
