@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 
-from model.notification import BasicNotification, CoursePendingNotification, CourseTentativeNotification, Notification
+from model.notification import (BasicNotification, CoursePendingNotification,
+                                CourseTentativeNotification,
+                                ChooseALabNotification, Notification)
 
 class NotificationCreator(ABC):
     @abstractmethod
@@ -19,3 +21,7 @@ class CoursePendingNotificationCreator(NotificationCreator):
 class CourseTentativeNotificationCreator(NotificationCreator):
     def factory_method(self, data: Dict[str, Any]) -> Notification:
         return CourseTentativeNotification(msg=data['msg'], type=data['type'], course_id=data['course_id'])
+
+class ChooseALabNotificationCreator(NotificationCreator):
+    def factory_method(self, data: Dict[str, Any]) -> Notification:
+        return ChooseALabNotification(msg=data['msg'], type=data['type'], course_id=data['course_id'])

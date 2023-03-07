@@ -47,6 +47,10 @@ def test_register_tentative():
     registration : Registration = rs.get_registration_by_student_id_and_course_id(1, 512301)
     assert registration.status == "tentative"
 
+def test_register_lab_required():
+    notification = rs.register(1, 513001)
+    assert notification.msg == "This course requires a lab, please select one."
+
 def test_drop_class():
     notification = rs.drop_class(1, 514101)
     assert notification.msg == "Course 514101 was successfully dropped"

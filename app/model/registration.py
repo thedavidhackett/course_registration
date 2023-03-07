@@ -13,7 +13,6 @@ class Registration(ManagedEntity):
     lab_section_id : Mapped[int] = \
         mapped_column("lab_section_id", ForeignKey('lab_section.id'), nullable=True)
 
-
     def __init__(self, status : str, student_id : int, course_section_id : int) -> None:
         super().__init__()
         self.__status : str = status

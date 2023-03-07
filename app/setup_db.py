@@ -3,32 +3,41 @@ from datetime import time
 from sqlalchemy.orm import Session
 from db import db, notifications
 from model.base import Base
-from model.course import Course, CourseSection, LabSection, TimeSlot
+from model.course import Course, CourseSection, Department, LabSection, TimeSlot
 from model.registration import Registration
-from model.restriction import FeeRestriction
-from model.user import Student
+from model.restriction import FeeRestriction, Restriction
+from model.user import Instructor, Professor,Student
 
 notifications.drop()
 notifications.insert_many([{"student_id": 1, "type": "restriction", "msg": "You have a restriction"},\
                           {"student_id": 5, "type": "info", "msg": "This is a notification about something"}])
-print(notifications.find_one({"student_id": 1}))
 Base.metadata.drop_all(db)
 Base.metadata.create_all(db)
 
 with Session(db) as session:
+    instructor1 = Professor("Bob", "Martin")
+    instructor2 = Instructor("Jim", "Computers")
+    session.add_all([instructor1, instructor2])
+    session.commit()
+
+    department1 = Department("Computer Science", 1)
+
+    session.add_all([department1])
+    session.commit()
+
     student1 = Student("David", "Hackett", "graduate")
     student2 = Student("Roger", "Restriction", "graduate")
     student3 = Student("Nanette", "Nocapacity", "graduate", 1)
     student4 = Student("James", "Fake", "graduate")
     student5 = Student("Foo", "Bar", "graduate")
     course1 = Course(id=51410, name="Object Oriented Programming",\
-         description="A class about object oriented programming")
+         description="A class about object oriented programming", department_id=1, instructor_id=1)
     course2 = Course(id=51230, name="User Interface and User Experience Design",\
-                     description="A class about designing interfaces", consent_required=True)
+                     description="A class about designing interfaces", department_id=1, instructor_id=2, consent_required=True)
     course3 = Course(id=51420, name="Advanced Object Oriented Programming", \
-                     description="For students who took objected oriented programming and want to learn more")
+                     description="For students who took objected oriented programming and want to learn more", department_id=1, instructor_id=1)
 
-    course4 = Course(id=51300, name="Compliers", description="A course on compliers")
+    course4 = Course(id=51300, name="Compliers", description="A course on compliers", department_id=1, instructor_id=1)
 
     course3.add_pre_req(course1)
 
@@ -54,7 +63,7 @@ with Session(db) as session:
     lab_section1 = LabSection(section_id=1, capacity=15, course=course4, times=[time_slot6])
     lab_section2 = LabSection(section_id=2, capacity=15, course=course4, times=[time_slot7])
 
-    restriction : FeeRestriction = FeeRestriction(2)
+    restriction : FeeRestriction = FeeRestriction(student2.id)
     session.add_all([course_section1, course_section2, course_section3, course_section4,\
                       course_section5, lab_section1, lab_section2, restriction])
     session.commit()
@@ -66,12 +75,12 @@ with Session(db) as session:
     session.commit()
 
     me = session.get(Student, 1)
+    roger = session.get(Student, student2.id)
+
+    print(roger.restrictions)
+
+    res = session.get(Restriction, 1)
+
 
     course = session.get(CourseSection, 514201)
-
     lab = session.get(LabSection, 5130001)
-
-    print(lab.course.view())
-
-    print(me.view())
-    print(course.view())

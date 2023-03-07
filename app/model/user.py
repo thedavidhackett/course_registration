@@ -1,16 +1,16 @@
 from abc import abstractmethod
 from typing import Dict, List
 
-from sqlalchemy import String
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import ManagedEntity
+from .permission import Permission
 from .registration import Registration
 from .restriction import Restriction
 
 class User(ManagedEntity):
     __abstract__ = True
-    __id : Mapped[int] = mapped_column("id", primary_key=True, autoincrement=True)
     __first_name : Mapped[str] = mapped_column("first_name", String(100))
     __last_name : Mapped[str] = mapped_column("last_name", String(100))
     __password : Mapped[str] = mapped_column("password", String(100))
@@ -43,10 +43,12 @@ class User(ManagedEntity):
 
 
 class Student(User):
+    id : Mapped[int] = mapped_column("id", primary_key=True, autoincrement=True)
     __level : Mapped[str] = mapped_column("level", String(20))
     __registrations : Mapped[List[Registration]] = relationship(lazy="subquery")
     __restrictions : Mapped[List[Restriction]] = relationship(lazy="subquery")
     __capacity : Mapped[int] = mapped_column("capacity")
+    __permissions : Mapped[List[Permission]] = relationship(lazy="subquery")
 
     def __init__(self, first_name: str, last_name: str, level : str, capacity : int = 3) -> None:
         super().__init__(first_name, last_name)
@@ -67,6 +69,10 @@ class Student(User):
     def restrictions(self) -> List[Restriction]:
         return self.__restrictions
 
+    @property
+    def permissions(self) -> List[Restriction]:
+        return self.__permissions
+
     def at_capacity(self) -> bool:
         return len(self.__registrations) >= self.__capacity
 
@@ -79,6 +85,9 @@ class Student(User):
     def add_registration(self, r : Registration) -> None:
         self.__registrations.append(r)
 
+    def add_restriction(self, r : Restriction) -> None:
+        self.__restrictions.append(r)
+
     def is_enrolled_in_course(self, course_section_id : int) -> bool:
         reg : Registration
         for reg in self.__registrations:
@@ -86,3 +95,25 @@ class Student(User):
                 return True
 
         return False
+
+
+class Instructor(User):
+    id : Mapped[int] = mapped_column("id", primary_key=True, autoincrement=True)
+    type: Mapped[str] = mapped_column(String(100))
+    __mapper_args__ = {
+        "polymorphic_identity": "instructor",
+        "polymorphic_on": "type",
+    }
+
+    def __init__(self, first_name: str, last_name: str) -> None:
+        super().__init__(first_name, last_name)
+
+
+class Professor(Instructor):
+    id: Mapped[int] = mapped_column(ForeignKey("instructor.id"), primary_key=True)
+    __mapper_args__ = {
+        "polymorphic_identity": "professor",
+    }
+
+    def __init__(self, first_name: str, last_name: str) -> None:
+        super().__init__(first_name, last_name)

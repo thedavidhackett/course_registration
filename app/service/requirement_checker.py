@@ -5,7 +5,11 @@ from model.course import Course, CourseSection
 from model.notification import Notification
 from model.restriction import Restriction
 from model.user import Student
-from service.notification_factory import BasicNotificationCreator, CoursePendingNotificationCreator, CourseTentativeNotificationCreator, NotificationCreator
+from service.notification_factory import (BasicNotificationCreator,
+                                          ChooseALabNotificationCreator,
+                                          CoursePendingNotificationCreator,
+                                          CourseTentativeNotificationCreator,
+                                          NotificationCreator)
 
 class RequirementChecker(ABC):
     __notification_factory : NotificationCreator
@@ -30,6 +34,7 @@ class RestrictionChecker(RequirementChecker):
     def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, Notification]:
         r : Restriction
         for r in student.restrictions:
+            print(r.message)
             if not r.can_register():
                 return False, self.__notification_factory.factory_method({"msg": r.message, "type": "warning"})
 
@@ -89,10 +94,23 @@ class CourseCapacityChecker(RequirementChecker):
 
         return self.__next.check_requirements(student, course)
 
+class LabRequirementChecker(RequirementChecker):
+    def __init__(self, notification_factory : NotificationCreator, next : RequirementChecker) -> None:
+        self.__notification_factory : NotificationCreator = notification_factory
+        self.__next : RequirementChecker = next
+
+    def check_requirements(self, student : Student, course : CourseSection) -> Tuple[bool, Notification]:
+        if course.course.lab_required:
+            return False, self.__notification_factory.factory_method(\
+                    {"msg": "This course requires a lab, please select one.", "type": "info", "course_id": course.id})
+
+        return self.__next.check_requirements(student, course)
+
 
 def create_registration_requirements_chain() -> RequirementChecker:
     base_checker : BaseChecker = BaseChecker(BasicNotificationCreator())
-    course_consent_checker : CourseConsentChecker = CourseConsentChecker(CourseTentativeNotificationCreator(), base_checker)
+    lab_requirement_checker : LabRequirementChecker = LabRequirementChecker(ChooseALabNotificationCreator(), base_checker)
+    course_consent_checker : CourseConsentChecker = CourseConsentChecker(CourseTentativeNotificationCreator(), lab_requirement_checker)
     student_capacity_checker : StudentCapacityChecker = StudentCapacityChecker(CoursePendingNotificationCreator(), course_consent_checker)
     course_capacity_checker : CourseCapacityChecker = CourseCapacityChecker(BasicNotificationCreator(), student_capacity_checker)
     pre_req_checker : PreReqChecker = PreReqChecker(BasicNotificationCreator(),course_capacity_checker)

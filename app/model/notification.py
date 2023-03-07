@@ -19,3 +19,8 @@ class CourseTentativeNotification(Notification):
     def __init__(self, msg: str, type: str, course_id : int) -> None:
         super().__init__(msg, type)
         self.course_id : int = course_id
+
+class ChooseALabNotification(Notification):
+    def __init__(self, msg: str, type: str, course_id : int) -> None:
+        super().__init__(msg, type)
+        self.course_id : int = course_id

@@ -6,6 +6,35 @@ from sqlalchemy.orm import declared_attr, Mapped, mapped_column, relationship
 
 from .base import ManagedEntity
 from .registration import Registration
+from .user import Instructor, Professor
+
+class Department(ManagedEntity):
+    __id : Mapped[int] = mapped_column("id", primary_key=True, autoincrement=True)
+    __name : Mapped[str] = mapped_column("name", String(100))
+    __chair_id : Mapped[int] = mapped_column("chair_id", ForeignKey('professor.id'))
+    _chair : Mapped[Professor] = relationship(lazy="subquery")
+
+    def __init__(self, name : str, professor_id : int):
+        super().__init__()
+        self.__name : str = name
+        self.__chair_id : int = professor_id
+
+    @property
+    def id(self) -> int:
+        return self.__id
+
+    @property
+    def name(self) -> str:
+        return self.__name
+
+    @property
+    def chair(self) -> Professor:
+        return self._chair
+
+    def make_chair(self, professor : Professor):
+        self.__chair_id = professor.id
+
+
 
 class Course(ManagedEntity):
     __id : Mapped[int] = mapped_column("id", primary_key=True)
@@ -16,13 +45,19 @@ class Course(ManagedEntity):
     __pre_req_for_id : Mapped[int] = mapped_column("pre_req_for_id", ForeignKey('course.id'), nullable=True)
     course_sections: Mapped[List["CourseSection"]] = relationship(back_populates="_course")
     lab_sections: Mapped[List["LabSection"]] = relationship(back_populates="_course")
+    __department_id : Mapped[int] = mapped_column("department_id", ForeignKey('department.id'))
+    _department : Mapped[Department] = relationship(lazy="subquery")
+    __instructor_id : Mapped[int] = mapped_column("instructor_id", ForeignKey('instructor.id'))
+    _instructor : Mapped[Instructor] = relationship(lazy="subquery")
 
 
-    def __init__(self, id : int, name: str, description: str, consent_required : bool = False) -> None:
+    def __init__(self, id : int, name: str, description: str, department_id : int, instructor_id : int, consent_required : bool = False) -> None:
         super().__init__()
         self.__id : int = id
         self.__name : str = name
         self.__description : str = description
+        self.__department_id : int = department_id
+        self.__instructor_id : int = instructor_id
         self.__consent_required : str = consent_required
         self.__pre_reqs : List['Course'] = []
 
@@ -45,6 +80,10 @@ class Course(ManagedEntity):
     @property
     def pre_reqs(self) -> List['Course']:
         return self.__pre_reqs
+
+    @property
+    def lab_required(self) -> bool:
+        return len(self.lab_sections) > 0
 
     def view(self) -> Dict[str, object]:
         return {"id": self.id, "name": self.name, "description": self.description, "pre_reqs" : [c.name for c in self.pre_reqs]}
