@@ -15,7 +15,6 @@ def test_get_course_details():
             "id": 51410,
             "name" : "Object Oriented Programming",
             "description": "A class about object oriented programming",
-            "pre_reqs": []
         },
         "times": [
             {"day": "Monday", "start_time": "4:10PM", "end_time": "6:00PM"}
@@ -28,10 +27,10 @@ def test_get_course_details():
 
 
 def test_course_search_just_id():
-    course_section1 : CourseSection = em.get_by_id(CourseSection, 514101)
-    course_section2 : CourseSection = em.get_by_id(CourseSection, 514102)
+    course_section1 : CourseSection = cs.get_course_section_by_id(514101)
+    course_section2 : CourseSection = cs.get_course_section_by_id(514102)
 
     courses : List[CourseSection] = cs.search(51410)
-
-    assert course_section1 in courses
-    assert course_section2 in courses
+    cs_ids = [c.id for c in courses]
+    assert course_section1.id in cs_ids
+    assert course_section2.id in cs_ids

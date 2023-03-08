@@ -26,19 +26,14 @@ def test_get_user(client):
         "level" : "graduate"
     }
 
-    response = client.get("/get-user")
+    response = client.get("/api/get-user")
     assert response.status_code == 200
     assert json.loads(response.data) == expected
 
 
-# def test_student_courses_page(client):
-#     response = client.get("/student/courses")
-#     assert response.status_code == 200
+def test_student_courses_page(client):
+    response = client.get("/api/student/courses")
+    assert response.status_code == 200
+    data = json.loads(response.data)
 
-# def test_search_course_page(client):
-#     response = client.get("/course")
-#     assert response.status_code == 200
-
-# def test_course_page(client):
-#     response = client.get("/course/514101")
-#     assert response.status_code == 200
+    assert 514101 == data['registered'][0]['id']

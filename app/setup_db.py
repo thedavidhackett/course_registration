@@ -7,6 +7,8 @@ from model.course import Course, CourseSection, Department, LabSection, TimeSlot
 from model.registration import Registration
 from model.restriction import FeeRestriction, Restriction
 from model.user import Instructor, Professor,Student
+from service.entity_manager import EntityManager
+from service.course_service import CourseService
 
 notifications.drop()
 notifications.insert_many([{"student_id": 1, "type": "restriction", "msg": "You have a restriction"},\
@@ -37,7 +39,7 @@ with Session(db) as session:
     course3 = Course(id=51420, name="Advanced Object Oriented Programming", \
                      description="For students who took objected oriented programming and want to learn more", department_id=1, instructor_id=1)
 
-    course4 = Course(id=51300, name="Compliers", description="A course on compliers", department_id=1, instructor_id=1)
+    course4 = Course(id=51300, name="Compliers", description="A course on compliers", department_id=1, instructor_id=1, lab_required=True)
 
     course3.add_pre_req(course1)
 
@@ -84,3 +86,10 @@ with Session(db) as session:
 
     course = session.get(CourseSection, 514201)
     lab = session.get(LabSection, 5130001)
+
+
+cs = CourseService(EntityManager(db))
+
+c = cs.get_course_section_by_id(514201)
+
+print(c.course)

@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
+from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.expression import Select
 
 from .entity_manager import EntityManagerInterface
@@ -22,6 +24,8 @@ class StudentService:
         self.__em : EntityManagerInterface = em
 
     def get_student_by_id(self, id : int) -> Student:
+        # stmt : Select = select(Student).options(joinedload(Student.registrations), joinedload(Student.restrictions))
+        # return self.__em.get_one_by_criteria(stmt)
         return self.__em.get_by_id(Student, id)
 
     def get_student_courses(self, student : Student) -> Dict[str, List[CourseSection]]:
@@ -45,7 +49,7 @@ class StudentService:
         key : str
         ids : List[int]
         for key, ids in zip(result.keys(), [registered_ids, tentative_ids, pending_ids]):
-            stmt : Select = Select(CourseSection).where(CourseSection.id.in_(ids))
+            stmt : Select = Select(CourseSection).options(joinedload(CourseSection.course)).where(CourseSection.id.in_(ids))
             result[key] = self.__em.get_by_criteria(stmt)
 
         return result

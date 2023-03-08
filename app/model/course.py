@@ -41,23 +41,25 @@ class Course(ManagedEntity):
     __name : Mapped[str] = mapped_column("name", String(100))
     __description : Mapped[str] = mapped_column("description", String(255))
     __consent_required : Mapped[bool] = mapped_column("consent_required")
+    __lab_required : Mapped[bool] = mapped_column("lab_required")
     __pre_reqs : Mapped[List["Course"]] = relationship(lazy="subquery")
-    __pre_req_for_id : Mapped[int] = mapped_column("pre_req_for_id", ForeignKey('course.id'), nullable=True)
-    course_sections: Mapped[List["CourseSection"]] = relationship(back_populates="_course")
-    lab_sections: Mapped[List["LabSection"]] = relationship(back_populates="_course")
+    pre_req_for_id : Mapped[int] = mapped_column("pre_req_for_id", ForeignKey('course.id'), nullable=True)
+    course_sections: Mapped[List["CourseSection"]] = relationship(back_populates="course")
+    lab_sections: Mapped[List["LabSection"]] = relationship(back_populates="course")
     __department_id : Mapped[int] = mapped_column("department_id", ForeignKey('department.id'))
     _department : Mapped[Department] = relationship(lazy="subquery")
     __instructor_id : Mapped[int] = mapped_column("instructor_id", ForeignKey('instructor.id'))
     _instructor : Mapped[Instructor] = relationship(lazy="subquery")
 
 
-    def __init__(self, id : int, name: str, description: str, department_id : int, instructor_id : int, consent_required : bool = False) -> None:
+    def __init__(self, id : int, name: str, description: str, department_id : int, instructor_id : int, lab_required : bool = False, consent_required : bool = False) -> None:
         super().__init__()
         self.__id : int = id
         self.__name : str = name
         self.__description : str = description
         self.__department_id : int = department_id
         self.__instructor_id : int = instructor_id
+        self.__lab_required : int = lab_required
         self.__consent_required : str = consent_required
         self.__pre_reqs : List['Course'] = []
 
@@ -83,10 +85,10 @@ class Course(ManagedEntity):
 
     @property
     def lab_required(self) -> bool:
-        return len(self.lab_sections) > 0
+        return self.__lab_required
 
     def view(self) -> Dict[str, object]:
-        return {"id": self.id, "name": self.name, "description": self.description, "pre_reqs" : [c.name for c in self.pre_reqs]}
+        return {"id": self.id, "name": self.name, "description": self.description}
 
     def add_pre_req(self, course : "Course") -> None:
         self.__pre_reqs.append(course)
@@ -139,12 +141,8 @@ class Section:
         self.id : int = id
         self._capacity : int = capacity
         self._times : List[TimeSlot] = times
-        self._course : Course = course
+        self.course : Course = course
         self._registrations : List[Registration] = []
-
-    @property
-    def course(self):
-        return self._course
 
     @property
     def times(self) -> List[TimeSlot]:
@@ -164,7 +162,7 @@ class Section:
 
 class LabSection(Section, ManagedEntity):
     course_id : Mapped[int] = mapped_column("course_id", ForeignKey("course.id"))
-    _course : Mapped["Course"] = relationship(lazy="subquery")
+    course : Mapped["Course"] = relationship(lazy="subquery")
     _times : Mapped[List["TimeSlot"]] = relationship(lazy="subquery")
     _registrations : Mapped[List["Registration"]] = relationship(lazy="subquery")
 
@@ -174,7 +172,7 @@ class LabSection(Section, ManagedEntity):
 
 class CourseSection(Section, ManagedEntity):
     course_id : Mapped[int] = mapped_column("course_id", ForeignKey("course.id"))
-    _course : Mapped["Course"] = relationship(lazy="subquery")
+    course : Mapped["Course"] = relationship(lazy="subquery")
     _times : Mapped[List["TimeSlot"]] = relationship(lazy="subquery")
     _registrations : Mapped[List["Registration"]] = relationship(lazy="subquery")
 
@@ -184,4 +182,4 @@ class CourseSection(Section, ManagedEntity):
 
     @property
     def consent_required(self) -> bool:
-        return self._course.consent_required
+        return self.course.consent_required

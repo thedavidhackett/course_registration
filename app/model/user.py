@@ -45,36 +45,24 @@ class User(ManagedEntity):
 class Student(User):
     id : Mapped[int] = mapped_column("id", primary_key=True, autoincrement=True)
     __level : Mapped[str] = mapped_column("level", String(20))
-    __registrations : Mapped[List[Registration]] = relationship(lazy="subquery")
-    __restrictions : Mapped[List[Restriction]] = relationship(lazy="subquery")
     __capacity : Mapped[int] = mapped_column("capacity")
-    __permissions : Mapped[List[Permission]] = relationship(lazy="subquery")
+    registrations : Mapped[List[Registration]] = relationship(lazy="subquery")
+    restrictions : Mapped[List[Restriction]] = relationship(lazy="subquery")
+    permissions : Mapped[List[Permission]] = relationship(lazy="subquery")
 
     def __init__(self, first_name: str, last_name: str, level : str, capacity : int = 3) -> None:
         super().__init__(first_name, last_name)
         self.__level = level
-        self.__registrations : List[Registration] = []
-        self.__restrictions : List[Restriction] = []
+        self.registrations : List[Registration] = []
+        self.restrictions : List[Restriction] = []
         self.__capacity = capacity
 
     @property
     def level(self) -> str:
         return self.__level
 
-    @property
-    def registrations(self) -> List[Registration]:
-        return self.__registrations
-
-    @property
-    def restrictions(self) -> List[Restriction]:
-        return self.__restrictions
-
-    @property
-    def permissions(self) -> List[Restriction]:
-        return self.__permissions
-
     def at_capacity(self) -> bool:
-        return len(self.__registrations) >= self.__capacity
+        return len(self.registrations) >= self.__capacity
 
     def full_name(self):
         return self.first_name + " " + self.last_name
@@ -83,14 +71,14 @@ class Student(User):
         return {"id": self.id, "name": self.full_name(), "level" : self.level}
 
     def add_registration(self, r : Registration) -> None:
-        self.__registrations.append(r)
+        self.registrations.append(r)
 
     def add_restriction(self, r : Restriction) -> None:
-        self.__restrictions.append(r)
+        self.restrictions.append(r)
 
     def is_enrolled_in_course(self, course_section_id : int) -> bool:
         reg : Registration
-        for reg in self.__registrations:
+        for reg in self.registrations:
             if reg.course_section_id == course_section_id:
                 return True
 

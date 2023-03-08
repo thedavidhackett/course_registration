@@ -31,26 +31,31 @@ class EntityManagerInterface(ABC):
 
 class EntityManager(EntityManagerInterface):
     def __init__(self, db) -> None:
-        self.__db = Session(db)
+        self.__db = db
 
     def get_by_id(self, Cls : Type[ManagedEntity], id : int) -> Optional[ManagedEntity]:
-        obj : Optional[ManagedEntity] = self.__db.get(Cls, id)
-        return obj
+        with Session(self.__db) as s:
+            obj : Optional[ManagedEntity] = s.get(Cls, id)
+            return obj
 
     def add(self, obj : ManagedEntity) -> None:
-        self.__db.add(obj)
-        self.__db.commit()
+        with Session(self.__db) as s:
+            s.add(obj)
+            s.commit()
 
     def get_by_criteria(self, statement : Select) -> List[ManagedEntity]:
-        result : List[ManagedEntity] = [obj for obj in self.__db.scalars(statement)]
+        with Session(self.__db) as s:
+            result : List[ManagedEntity] = [obj for obj in s.scalars(statement)]
 
-        return result
+            return result
 
     def get_one_by_criteria(self, statement : Select) -> Optional[ManagedEntity]:
-        obj : Optional[ManagedEntity] = self.__db.scalars(statement).one_or_none()
+        with Session(self.__db) as s:
+            obj : Optional[ManagedEntity] = s.scalars(statement).one_or_none()
 
-        return obj
+            return obj
 
     def delete(self, obj : ManagedEntity) -> None:
-        self.__db.delete(obj)
-        self.__db.commit()
+        with Session(self.__db) as s:
+            s.delete(obj)
+            s.commit()

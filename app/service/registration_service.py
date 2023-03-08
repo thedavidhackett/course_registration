@@ -7,6 +7,8 @@ from sqlalchemy.sql.expression import Select
 from .entity_manager import EntityManagerInterface
 from .notification_factory import NotificationCreator
 from .requirement_checker import RequirementChecker
+from .course_service import CourseServiceInterface
+from .student_service import StudentService
 from model.course import CourseSection, LabSection
 from model.notification import Notification
 from model.registration import Registration
@@ -28,8 +30,9 @@ class RegistrationServiceInterface(ABC):
 
 
 class RegistrationService:
-    def __init__(self, em : EntityManagerInterface, notification_factory : NotificationCreator) -> None:
+    def __init__(self, em : EntityManagerInterface, cs : CourseServiceInterface, ss : StudentService, notification_factory : NotificationCreator) -> None:
         self.__em : EntityManagerInterface = em
+        self.__cs : CourseServiceInterface = cs
         self.__notification_factory = notification_factory
 
     def register(self, checker_chain : RequirementChecker, student_id : int, cs_id : int, lab_id : int = None) -> Notification:
@@ -38,7 +41,7 @@ class RegistrationService:
             return self.__notification_factory.factory_method({"msg": "You are already registered for this class", "type": "warning"})
 
         student : Student = self.__em.get_by_id(Student, student_id)
-        course : CourseSection = self.__em.get_by_id(CourseSection, cs_id)
+        course : CourseSection = self.__cs.get_course_section_by_id(cs_id)
         lab : Optional[LabSection] = None
 
         if lab_id:

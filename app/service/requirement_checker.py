@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Tuple
 
+from db import db
+
 from model.course import Course, CourseSection, LabSection, TimeSlot
 from model.notification import Notification
 from model.restriction import Restriction
@@ -9,6 +11,8 @@ from service.notification_factory import (BasicNotificationCreator,
                                           DialogFormNotificationCreator,
                                           DialogNotificationCreator,
                                           NotificationCreator)
+from service.course_service import CourseService, CourseServiceInterface
+from service.entity_manager import EntityManager
 
 class RequirementChecker(ABC):
     __notification_factory : NotificationCreator
@@ -91,14 +95,15 @@ class CourseConsentChecker(RequirementChecker):
         return self.__next.check_requirements(student, course, lab)
 
 class PreReqChecker(RequirementChecker):
-    def __init__(self, notification_factory : NotificationCreator, next : RequirementChecker) -> None:
+    def __init__(self, notification_factory : NotificationCreator, cs : CourseServiceInterface, next : RequirementChecker) -> None:
         self.__notification_factory : NotificationCreator = notification_factory
         self.__next : RequirementChecker = next
+        self.__cs : CourseServiceInterface = cs
 
     def check_requirements(self, student : Student, course : CourseSection, lab : LabSection = None) -> Tuple[bool, Notification, str]:
         c : Course
         courses_taken : List[int] = [reg.course_section_id // 10 for reg in student.registrations if reg.status == "completed"]
-        for c in course.get_pre_reqs():
+        for c in self.__cs.get_course_prereqs(course.course.id):
             if c.id not in courses_taken:
                 return False, self.__notification_factory.factory_method(\
                     {"msg": "You have not met the prereqs for this course", "type": "warning"}), ""
@@ -107,14 +112,16 @@ class PreReqChecker(RequirementChecker):
 
 
 class CourseCapacityChecker(RequirementChecker):
-    def __init__(self, notification_factory : NotificationCreator, next : RequirementChecker) -> None:
+    def __init__(self, notification_factory : NotificationCreator, cs : CourseServiceInterface, next : RequirementChecker) -> None:
         self.__notification_factory : NotificationCreator = notification_factory
+        self.__cs : CourseServiceInterface = cs
         self.__next : RequirementChecker = next
 
     def check_requirements(self, student : Student, course : CourseSection, lab : LabSection = None) -> Tuple[bool, Notification, str]:
         if course.at_capacity():
+            course_sections : List[CourseSection] = self.__cs.get_course_sections_by_course_id(course.course_id)
             options : List[Dict[str, int]] = [{"label" : str(c.id) + " " + " and ".join([str(t) for t in c.times]), "value": c.id}\
-                                               for c in course.course.course_sections if c.id != course.id]
+                                               for c in course_sections if c.id != course.id]
 
             msg : str = "This course is full"
             if len(options) > 0:
@@ -124,8 +131,9 @@ class CourseCapacityChecker(RequirementChecker):
                     {"msg": msg, "type": "warning", "data": {}, "action": "/register", "options": options, "value_name": "course_section_id", "submit_text": "Select Section"}), ""
 
         if lab and lab.at_capacity():
+            labs : List[LabSection] = self.__cs.get_labs_by_course_id(course.course_id)
             options : List[Dict[str, int]] = [{"label" : str(l.id) + " " + " and ".join([str(t) for t in l.times]), "value": l.id}\
-                                               for l in course.course.lab_sections if l.id != lab.id]
+                                               for l in labs if l.id != lab.id]
 
             msg : str = "This lab is full"
             if len(options) > 0:
@@ -137,15 +145,17 @@ class CourseCapacityChecker(RequirementChecker):
         return self.__next.check_requirements(student, course, lab)
 
 class LabRequirementChecker(RequirementChecker):
-    def __init__(self, notification_factory : NotificationCreator, next : RequirementChecker) -> None:
+    def __init__(self, notification_factory : NotificationCreator, cs : CourseServiceInterface, next : RequirementChecker) -> None:
         self.__notification_factory : NotificationCreator = notification_factory
+        self.__cs : CourseServiceInterface = cs
         self.__next : RequirementChecker = next
 
     def check_requirements(self, student : Student, course : CourseSection, lab : LabSection = None) -> Tuple[bool, Notification, str]:
         t : TimeSlot
         if course.course.lab_required and not lab:
+            labs : List[LabSection] = self.__cs.get_labs_by_course_id(course.course_id)
             options : List[Dict[str, int]] = [{"label" : str(l.id) + " " + " and ".join([str(t) for t in l.times]), "value": l.id}\
-                                        for l in course.course.lab_sections]
+                                        for l in labs]
             notification : Notification = self.__notification_factory.factory_method(\
                     {"msg": "This course requires a lab, please select one.", "type": "info", "data": {"course_id": course.id},\
                       "action": "/register", "value_name": "lab_id", "options": options, "submit_text": "Select Lab"})
@@ -156,28 +166,31 @@ class LabRequirementChecker(RequirementChecker):
 
 
 def create_registration_requirements_chain() -> RequirementChecker:
+    cs : CourseService = CourseService(EntityManager(db))
     base_checker : BaseChecker = BaseChecker(BasicNotificationCreator())
     course_consent_checker : CourseConsentChecker = CourseConsentChecker(DialogNotificationCreator(), base_checker)
     student_capacity_checker : StudentCapacityChecker = StudentCapacityChecker(DialogNotificationCreator(), course_consent_checker)
-    lab_requirement_checker : LabRequirementChecker = LabRequirementChecker(DialogFormNotificationCreator(), student_capacity_checker)
-    course_capacity_checker : CourseCapacityChecker = CourseCapacityChecker(DialogFormNotificationCreator(), lab_requirement_checker)
-    pre_req_checker : PreReqChecker = PreReqChecker(BasicNotificationCreator(),course_capacity_checker)
+    lab_requirement_checker : LabRequirementChecker = LabRequirementChecker(DialogFormNotificationCreator(), cs, student_capacity_checker)
+    course_capacity_checker : CourseCapacityChecker = CourseCapacityChecker(DialogFormNotificationCreator(), cs, lab_requirement_checker)
+    pre_req_checker : PreReqChecker = PreReqChecker(BasicNotificationCreator(), cs, course_capacity_checker)
     restriction_checker : RestrictionChecker = RestrictionChecker(BasicNotificationCreator(), pre_req_checker)
 
     return restriction_checker
 
 def create_pending_requirements_chain() -> RequirementChecker:
+    cs : CourseService = CourseService(EntityManager(db))
     base_pending_checker : PendingBaseChecker = PendingBaseChecker(BasicNotificationCreator())
-    course_capacity_checker : CourseCapacityChecker = CourseCapacityChecker(DialogFormNotificationCreator(), base_pending_checker)
-    pre_req_checker : PreReqChecker = PreReqChecker(BasicNotificationCreator(),course_capacity_checker)
+    course_capacity_checker : CourseCapacityChecker = CourseCapacityChecker(DialogFormNotificationCreator(), cs, base_pending_checker)
+    pre_req_checker : PreReqChecker = PreReqChecker(BasicNotificationCreator(), cs,course_capacity_checker)
     restriction_checker : RestrictionChecker = RestrictionChecker(BasicNotificationCreator(), pre_req_checker)
 
     return restriction_checker
 
 def create_tentative_requirements_chain() -> RequirementChecker:
+    cs : CourseService = CourseService(EntityManager(db))
     base_pending_checker : TentativeBaseChecker = TentativeBaseChecker(BasicNotificationCreator())
-    course_capacity_checker : CourseCapacityChecker = CourseCapacityChecker(DialogFormNotificationCreator(), base_pending_checker)
-    pre_req_checker : PreReqChecker = PreReqChecker(BasicNotificationCreator(),course_capacity_checker)
+    course_capacity_checker : CourseCapacityChecker = CourseCapacityChecker(DialogFormNotificationCreator(), cs, base_pending_checker)
+    pre_req_checker : PreReqChecker = PreReqChecker(BasicNotificationCreator(), cs, course_capacity_checker)
     restriction_checker : RestrictionChecker = RestrictionChecker(BasicNotificationCreator(), pre_req_checker)
 
     return restriction_checker

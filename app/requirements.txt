@@ -7,3 +7,5 @@ pytest
 pymongo
 Flask-PyMongo
 Flask-WTF
+flask_restful
+flask_cors

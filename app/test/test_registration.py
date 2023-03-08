@@ -4,9 +4,11 @@ from service.entity_manager import EntityManager
 from service.notification_factory import BasicNotificationCreator
 from service.registration_service import RegistrationService
 from service.requirement_checker import create_registration_requirements_chain, create_pending_requirements_chain, create_tentative_requirements_chain
+from service.course_service import CourseService
+from service.student_service import StudentService
 
 em : EntityManager = EntityManager(db)
-rs : RegistrationService = RegistrationService(em, BasicNotificationCreator())
+rs : RegistrationService = RegistrationService(em, CourseService(em), StudentService(em), BasicNotificationCreator())
 
 
 def test_register_student():

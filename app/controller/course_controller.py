@@ -19,6 +19,7 @@ ss : StudentServiceInterface = StudentService(em)
 rs : RegistrationServiceInterface = RegistrationService(em, BasicNotificationCreator())
 cs : CourseServiceInterface = CourseService(em)
 
+
 @bp.before_app_request
 def load_logged_in_user():
     g.user = ss.get_student_by_id(5)

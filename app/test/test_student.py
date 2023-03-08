@@ -26,5 +26,5 @@ def test_get_student_courses():
     registered_course : CourseSection = em.get_by_id(CourseSection, 514101)
     pending_course : CourseSection = em.get_by_id(CourseSection, 512301)
 
-    assert registered_course in courses['registered']
-    assert pending_course in courses['pending']
+    assert registered_course.id in [c.id for c in courses['registered']]
+    assert pending_course.id in [c.id for c in courses['pending']]
