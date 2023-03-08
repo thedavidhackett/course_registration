@@ -19,9 +19,6 @@ def load_logged_in_user():
     g.user = ss.get_student_by_id(5)
 
 
-@bp.route('/', methods=(['GET']))
-def home():
-    msgs : List[Notification] = [notification_creator.factory_method(data)\
-                            for data in notifications.find({"student_id": 5})]
-
-    return render_template('student/home.html', notifications=msgs)
+@bp.route('/get-user', methods=(['GET']))
+def get_user():
+    return g.user.view()

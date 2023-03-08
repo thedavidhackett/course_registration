@@ -16,7 +16,7 @@ from service.student_service import StudentService, StudentServiceInterface
 bp : Blueprint = Blueprint('course', __name__, url_prefix='/course')
 em : EntityManager = EntityManager(db)
 ss : StudentServiceInterface = StudentService(em)
-rs : RegistrationServiceInterface = RegistrationService(em, create_registration_requirements_chain(), BasicNotificationCreator())
+rs : RegistrationServiceInterface = RegistrationService(em, BasicNotificationCreator())
 cs : CourseServiceInterface = CourseService(em)
 
 @bp.before_app_request
@@ -40,22 +40,10 @@ def view(id : int):
 
     if request.method == "POST":
         if request.form.get("register") == "register":
-            reg_notification : Notification = rs.register(g.user.id, id)
+            reg_notification : Notification = rs.register(create_registration_requirements_chain(), g.user.id, id)
             course_notifications.append(reg_notification)
         elif request.form.get("drop") == "drop":
             drop_notification : Notification = rs.drop_class(g.user.id, id)
             course_notifications.append(drop_notification)
 
     return render_template('course/view.html', course=course, notifications=course_notifications)
-
-@bp.route('/pending/<int:id>', methods=(['POST']))
-def pending(id : int):
-    rs.register_pending(g.user.id, id)
-
-    return redirect(url_for("student.courses"))
-
-@bp.route('/tentative/<int:id>', methods=(['POST']))
-def tentative(id : int):
-    rs.register_pending(g.user.id, id)
-
-    return redirect(url_for("student.courses"))

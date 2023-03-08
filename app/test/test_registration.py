@@ -3,53 +3,65 @@ from model.registration import Registration
 from service.entity_manager import EntityManager
 from service.notification_factory import BasicNotificationCreator
 from service.registration_service import RegistrationService
-from service.requirement_checker import create_registration_requirements_chain
+from service.requirement_checker import create_registration_requirements_chain, create_pending_requirements_chain, create_tentative_requirements_chain
 
 em : EntityManager = EntityManager(db)
-rs : RegistrationService = RegistrationService(em, create_registration_requirements_chain(), BasicNotificationCreator())
+rs : RegistrationService = RegistrationService(em, BasicNotificationCreator())
 
 
 def test_register_student():
-    notification = rs.register(1, 514101)
+    notification = rs.register(create_registration_requirements_chain(), 1, 514101)
     assert notification.msg == f"You successfully registered for 514101 - Object Oriented Programming"
 
     registration : Registration = rs.get_registration_by_student_id_and_course_id(1, 514101)
     assert registration.status == 'registered'
 
 def test_register_student_with_restriction():
-    notification = rs.register(2, 514101)
+    notification = rs.register(create_registration_requirements_chain(), 2, 514101)
     assert notification.msg == "You have an unpaid fee"
 
 def test_register_student_with_full_course_load():
-    notification = rs.register(3, 514101)
+    notification = rs.register(create_registration_requirements_chain(), 3, 514101)
     assert notification.msg == "Adding this course would overload your schedule. Would you like to request permission?"
 
 def test_register_student_instructor_consent_required():
     msg : str
-    notification = rs.register(1, 512301)
+    notification = rs.register(create_registration_requirements_chain(), 1, 512301)
     assert notification.msg == "This course requires instructor approval? Would you like to request it"
 
 def test_register_student_prereqs_not_met():
-    notification = rs.register(1, 514201)
+    notification = rs.register(create_registration_requirements_chain(), 1, 514201)
     assert notification.msg == "You have not met the prereqs for this course"
 
 def test_register_student_course_full():
-    notification = rs.register(1, 514102)
-    assert notification.msg == "This course is full"
+    notification = rs.register(create_registration_requirements_chain(), 1, 514102)
+    assert notification.msg == "This course is full, here are other sections"
 
 def test_register_pending():
-    rs.register_pending(3, 514101)
+    rs.register(create_pending_requirements_chain(), 3, 514101)
     registration : Registration = rs.get_registration_by_student_id_and_course_id(3, 514101)
     assert registration.status == "pending"
 
 def test_register_tentative():
-    rs.register_tentative(1, 512301)
+    rs.register(create_tentative_requirements_chain(), 1, 512301)
     registration : Registration = rs.get_registration_by_student_id_and_course_id(1, 512301)
     assert registration.status == "tentative"
 
 def test_register_lab_required():
-    notification = rs.register(1, 513001)
+    notification = rs.register(create_registration_requirements_chain(), 1, 513001)
     assert notification.msg == "This course requires a lab, please select one."
+
+def test_register_with_lab():
+    notification = rs.register(create_registration_requirements_chain(), 1, 513001, 5130001)
+    assert notification.msg == f"You successfully registered for 513001 - Compliers"
+
+    registration : Registration = rs.get_registration_by_student_id_and_course_id(1, 513001)
+    assert registration.status == "registered"
+    assert registration.lab_section_id == 5130001
+
+def test_already_registered_for_class():
+    notification = rs.register(create_registration_requirements_chain(), 3, 514102)
+    assert notification.msg == "You are already registered for this class"
 
 def test_drop_class():
     notification = rs.drop_class(1, 514101)

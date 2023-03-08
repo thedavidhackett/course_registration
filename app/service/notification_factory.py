@@ -1,9 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 
-from model.notification import (BasicNotification, CoursePendingNotification,
-                                CourseTentativeNotification,
-                                ChooseALabNotification, Notification)
+from model.notification import (BasicNotification, DialogNotification, DialogFormNotification, Notification)
 
 class NotificationCreator(ABC):
     @abstractmethod
@@ -14,14 +12,10 @@ class BasicNotificationCreator(NotificationCreator):
     def factory_method(self, data : Dict[str, Any]) -> Notification:
         return BasicNotification(msg=data["msg"], type="info")
 
-class CoursePendingNotificationCreator(NotificationCreator):
+class DialogNotificationCreator(NotificationCreator):
     def factory_method(self, data: Dict[str, Any]) -> Notification:
-        return CoursePendingNotification(msg=data['msg'], type=data['type'], course_id=data['course_id'])
+        return DialogNotification(msg=data['msg'], type=data['type'], action=data['action'], data=data['data'], submit_text=data['submit_text'])
 
-class CourseTentativeNotificationCreator(NotificationCreator):
+class DialogFormNotificationCreator(NotificationCreator):
     def factory_method(self, data: Dict[str, Any]) -> Notification:
-        return CourseTentativeNotification(msg=data['msg'], type=data['type'], course_id=data['course_id'])
-
-class ChooseALabNotificationCreator(NotificationCreator):
-    def factory_method(self, data: Dict[str, Any]) -> Notification:
-        return ChooseALabNotification(msg=data['msg'], type=data['type'], course_id=data['course_id'])
+        return DialogFormNotification(msg=data['msg'], type=data['type'], action=data['action'], data=data['data'], options=data['options'], value_name=data['value_name'], submit_text=data['submit_text'])

@@ -126,6 +126,9 @@ class TimeSlot(ManagedEntity):
         return {"day": self.day, "start_time": self.start_time,\
             "end_time": self.end_time}
 
+    def __repr__(self) -> str:
+        return self.day + " " + self.start_time + "-" + self.end_time
+
 
 class Section:
     id : Mapped[int] = mapped_column("id", primary_key=True)
@@ -144,13 +147,8 @@ class Section:
         return self._course
 
     @property
-    def times(self) -> List[Dict[str, object]]:
-        details : List[Dict[str, object]] = []
-        time : TimeSlot
-        for time in self._times:
-            details.append(time.view())
-
-        return details
+    def times(self) -> List[TimeSlot]:
+        return self._times
 
     def get_pre_reqs(self) -> List[Course]:
         return self.course.pre_reqs
@@ -162,7 +160,7 @@ class Section:
         self._registrations.append(r)
 
     def view(self) -> Dict[str, object]:
-        return {'id': self.id, "course": self.course.view(), "times": self.times}
+        return {'id': self.id, "course": self.course.view(), "times": [t.view() for t in self.times]}
 
 class LabSection(Section, ManagedEntity):
     course_id : Mapped[int] = mapped_column("course_id", ForeignKey("course.id"))

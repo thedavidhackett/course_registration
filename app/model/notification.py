@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Any, Dict, List
 
 class Notification(ABC):
     def __init__(self, msg : str, type : str) -> None:
@@ -10,17 +11,15 @@ class BasicNotification(Notification):
     def __init__(self, msg: str, type: str) -> None:
         super().__init__(msg, type)
 
-class CoursePendingNotification(Notification):
-    def __init__(self, msg: str, type: str, course_id : int) -> None:
+class DialogNotification(Notification):
+    def __init__(self, msg: str, type: str, submit_text : str, action : str, data : Dict[str, Any]) -> None:
         super().__init__(msg, type)
-        self.course_id : int = course_id
+        self.submit_test : str = submit_text
+        self.action : int = action
+        self.data : Dict[str, Any] = data
 
-class CourseTentativeNotification(Notification):
-    def __init__(self, msg: str, type: str, course_id : int) -> None:
-        super().__init__(msg, type)
-        self.course_id : int = course_id
-
-class ChooseALabNotification(Notification):
-    def __init__(self, msg: str, type: str, course_id : int) -> None:
-        super().__init__(msg, type)
-        self.course_id : int = course_id
+class DialogFormNotification(DialogNotification):
+    def __init__(self, msg: str, type: str, submit_text: str, action: str, data: Dict[str, Any], value_name: str, options : List[Dict[str, Any]]) -> None:
+        super().__init__(msg, type, submit_text, action, data)
+        self.value_name = value_name
+        self.options = options
