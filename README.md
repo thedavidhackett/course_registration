@@ -49,9 +49,6 @@ Ctrl-c in the command window running the docker containers you can then run:
 - A Student can search for a course by id
 - Has MySql Database for everything but notifications
 - Has NoSql (Mongo) database for notification
-
-## Requirements to meet still
-
 - A student can request instructor consent
 - A student can request department chair consent to overload schedule
 - A student can view restrictions

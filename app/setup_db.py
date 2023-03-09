@@ -6,9 +6,7 @@ from model.base import Base
 from model.course import Course, CourseSection, Department, LabSection, TimeSlot
 from model.registration import Registration
 from model.restriction import FeeRestriction, Restriction
-from model.user import Instructor, Professor,Student
-from service.entity_manager import EntityManager
-from service.course_service import CourseService
+from model.user import Instructor, Professor, Student
 from service.notification_service import NotificationService
 from service.notification_factory import BasicNotificationCreator
 
@@ -20,7 +18,6 @@ ns = NotificationService(notifications, BasicNotificationCreator())
 
 notes = ns.get_student_notifications(5)
 
-print(notes[0].id)
 
 Base.metadata.drop_all(db)
 Base.metadata.create_all(db)
@@ -88,17 +85,9 @@ with Session(db) as session:
     me = session.get(Student, 1)
     roger = session.get(Student, student2.id)
 
-    print(roger.restrictions)
 
     res = session.get(Restriction, 1)
 
 
     course = session.get(CourseSection, 514201)
     lab = session.get(LabSection, 5130001)
-
-
-cs = CourseService(EntityManager(db))
-
-c = cs.get_course_section_by_id(514201)
-
-print(c.course)
