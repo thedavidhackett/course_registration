@@ -42,7 +42,7 @@ class CourseService(CourseServiceInterface):
         stmt : Select = select(CourseSection).options(joinedload(CourseSection.course)).where(CourseSection.id == cs_id)
         return self.__em.get_by_id(CourseSection, cs_id)
 
-    def search(self, course_id : int = None, department_id : int = None) -> List[CourseSection]:
+    def search(self, course_id : Optional[int] = None, department_id : Optional[int] = None) -> List[CourseSection]:
         stmt : Select = select(CourseSection).join(Course)
         if course_id:
             stmt = stmt.where(CourseSection.course_id == course_id)

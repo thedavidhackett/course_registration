@@ -18,14 +18,14 @@ class RequirementChecker(ABC):
     __notification_factory : NotificationCreator
 
     @abstractmethod
-    def check_requirements(self, student : Student, course : CourseSection,) -> Tuple[bool, Notification, str]:
+    def check_requirements(self, student : Student, course : CourseSection, lab : Optional[LabSection]) -> Tuple[bool, Notification, str]:
         pass
 
 class BaseChecker(RequirementChecker):
     def __init__(self, notification_factory : NotificationCreator) -> None:
         self.__notification_factory : NotificationCreator = notification_factory
 
-    def check_requirements(self, student : Student, course : CourseSection, lab : LabSection = None) -> Tuple[bool, Notification, str]:
+    def check_requirements(self, student : Student, course : CourseSection, lab : Optional[LabSection] = None) -> Tuple[bool, Notification, str]:
         return True, self.__notification_factory.factory_method(\
             {"msg": f"You successfully registered for {course.id} - {course.course.name}", "type": "success"}),\
             "registered"
@@ -34,7 +34,7 @@ class PendingBaseChecker(RequirementChecker):
     def __init__(self, notification_factory : NotificationCreator) -> None:
         self.__notification_factory : NotificationCreator = notification_factory
 
-    def check_requirements(self, student : Student, course : CourseSection, lab : LabSection = None) -> Tuple[bool, Notification, str]:
+    def check_requirements(self, student : Student, course : CourseSection, lab : Optional[LabSection] = None) -> Tuple[bool, Notification, str]:
         return True, self.__notification_factory.factory_method(\
             {"msg": f"Your registration for {course.id} - {course.course.name} is pending", "type": "success"}),\
             "pending"
@@ -43,17 +43,17 @@ class TentativeBaseChecker(RequirementChecker):
     def __init__(self, notification_factory : NotificationCreator) -> None:
         self.__notification_factory : NotificationCreator = notification_factory
 
-    def check_requirements(self, student : Student, course : CourseSection, lab : LabSection = None) -> Tuple[bool, Notification, str]:
+    def check_requirements(self, student : Student, course : CourseSection, lab : Optional[LabSection] = None) -> Tuple[bool, Notification, str]:
         return True, self.__notification_factory.factory_method(\
             {"msg": f"Your registration for {course.id} - {course.course.name} is tentative", "type": "success"}),\
             "tentative"
 
 class RestrictionChecker(RequirementChecker):
-    def __init__(self, notification_factory : NotificationCreator, next : RequirementChecker, lab : LabSection = None) -> None:
+    def __init__(self, notification_factory : NotificationCreator, next : RequirementChecker, lab : Optional[LabSection] = None) -> None:
         self.__notification_factory : NotificationCreator = notification_factory
         self.__next : RequirementChecker = next
 
-    def check_requirements(self, student : Student, course : CourseSection, lab : LabSection = None) -> Tuple[bool, Notification, str]:
+    def check_requirements(self, student : Student, course : CourseSection, lab : Optional[LabSection] = None) -> Tuple[bool, Notification, str]:
         r : Restriction
         for r in student.restrictions:
             print(r.message)
@@ -67,7 +67,7 @@ class StudentCapacityChecker(RequirementChecker):
         self.__notification_factory : NotificationCreator = notification_factory
         self.__next : RequirementChecker = next
 
-    def check_requirements(self, student : Student, course : CourseSection, lab : LabSection = None) -> Tuple[bool, Notification, str]:
+    def check_requirements(self, student : Student, course : CourseSection, lab : Optional[LabSection] = None) -> Tuple[bool, Notification, str]:
         lab_id = lab.id if lab else None
         if student.at_capacity():
             notification : Notification = self.__notification_factory.factory_method(\
@@ -83,7 +83,7 @@ class CourseConsentChecker(RequirementChecker):
         self.__notification_factory : NotificationCreator = notification_factory
         self.__next : RequirementChecker = next
 
-    def check_requirements(self, student : Student, course : CourseSection, lab : LabSection = None) -> Tuple[bool, Notification, str]:
+    def check_requirements(self, student : Student, course : CourseSection, lab : Optional[LabSection] = None) -> Tuple[bool, Notification, str]:
         lab_id = lab.id if lab else None
         if course.consent_required:
             notification : Notification = self.__notification_factory.factory_method(\
@@ -100,7 +100,7 @@ class PreReqChecker(RequirementChecker):
         self.__next : RequirementChecker = next
         self.__cs : CourseServiceInterface = cs
 
-    def check_requirements(self, student : Student, course : CourseSection, lab : LabSection = None) -> Tuple[bool, Notification, str]:
+    def check_requirements(self, student : Student, course : CourseSection, lab : Optional[LabSection] = None) -> Tuple[bool, Notification, str]:
         c : Course
         courses_taken : List[int] = [reg.course_section_id // 10 for reg in student.registrations if reg.status == "completed"]
         for c in self.__cs.get_course_prereqs(course.course.id):
@@ -117,30 +117,30 @@ class CourseCapacityChecker(RequirementChecker):
         self.__cs : CourseServiceInterface = cs
         self.__next : RequirementChecker = next
 
-    def check_requirements(self, student : Student, course : CourseSection, lab : LabSection = None) -> Tuple[bool, Notification, str]:
+    def check_requirements(self, student : Student, course : CourseSection, lab : Optional[LabSection] = None) -> Tuple[bool, Notification, str]:
         if course.at_capacity():
             course_sections : List[CourseSection] = self.__cs.get_course_sections_by_course_id(course.course_id)
-            options : List[Dict[str, int]] = [{"label" : str(c.id) + " " + " and ".join([str(t) for t in c.times]), "value": c.id}\
+            course_options : List[Dict[str, object]] = [{"label" : str(c.id) + " " + " and ".join([str(t) for t in c.times]), "value": c.id}\
                                                for c in course_sections if c.id != course.id]
 
-            msg : str = "This course is full"
-            if len(options) > 0:
-                msg += ", here are other sections"
+            course_full_msg : str = "This course is full"
+            if len(course_options) > 0:
+                course_full_msg += ", here are other sections"
 
             return False, self.__notification_factory.factory_method(\
-                    {"msg": msg, "type": "warning", "data": {}, "action": "/register", "options": options, "value_name": "course_section_id", "submit_text": "Select Section"}), ""
+                    {"msg": course_full_msg, "type": "warning", "data": {}, "action": "/register", "options": course_options, "value_name": "course_section_id", "submit_text": "Select Section"}), ""
 
         if lab and lab.at_capacity():
             labs : List[LabSection] = self.__cs.get_labs_by_course_id(course.course_id)
-            options : List[Dict[str, int]] = [{"label" : str(l.id) + " " + " and ".join([str(t) for t in l.times]), "value": l.id}\
+            lab_options : List[Dict[str, object]] = [{"label" : str(l.id) + " " + " and ".join([str(t) for t in l.times]), "value": l.id}\
                                                for l in labs if l.id != lab.id]
 
-            msg : str = "This lab is full"
-            if len(options) > 0:
-                msg += ", here are other sections"
+            lab_full_msg : str = "This lab is full"
+            if len(lab_options) > 0:
+                lab_full_msg += ", here are other sections"
 
             return False, self.__notification_factory.factory_method(\
-                    {"msg": msg, "type": "warning", "data": {"course_section_id": course.id}, options : options, "action": "/register", "value_name": "lab_id", "submit_text": "Select Lab"}), ""
+                    {"msg": lab_full_msg, "type": "warning", "data": {"course_section_id": course.id}, "options" : lab_options, "action": "/register", "value_name": "lab_id", "submit_text": "Select Lab"}), ""
 
         return self.__next.check_requirements(student, course, lab)
 
@@ -150,11 +150,11 @@ class LabRequirementChecker(RequirementChecker):
         self.__cs : CourseServiceInterface = cs
         self.__next : RequirementChecker = next
 
-    def check_requirements(self, student : Student, course : CourseSection, lab : LabSection = None) -> Tuple[bool, Notification, str]:
+    def check_requirements(self, student : Student, course : CourseSection, lab : Optional[LabSection] = None) -> Tuple[bool, Notification, str]:
         t : TimeSlot
         if course.course.lab_required and not lab:
             labs : List[LabSection] = self.__cs.get_labs_by_course_id(course.course_id)
-            options : List[Dict[str, int]] = [{"label" : str(l.id) + " " + " and ".join([str(t) for t in l.times]), "value": l.id}\
+            options : List[Dict[str, object]] = [{"label" : str(l.id) + " " + " and ".join([str(t) for t in l.times]), "value": l.id}\
                                         for l in labs]
             notification : Notification = self.__notification_factory.factory_method(\
                     {"msg": "This course requires a lab, please select one.", "type": "info", "data": {"course_section_id": course.id},\

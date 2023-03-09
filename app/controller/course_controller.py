@@ -1,18 +1,10 @@
 from typing import Any, Dict, List
 
-from flask import Blueprint, g,render_template, redirect, request, url_for
-from flask_restful import Api, Resource, reqparse
+from flask import g, request
+from flask_restful import Api, Resource
 
-from db import db
-from form.course_search import CourseSearch
 from model.course import CourseSection, Department
-from model.notification import Notification
-from service.course_service import CourseService, CourseServiceInterface
-from service.entity_manager import EntityManager
-from service.notification_factory import BasicNotificationCreator
-from service.registration_service import RegistrationService, RegistrationServiceInterface
-from service.requirement_checker import create_registration_requirements_chain
-from service.student_service import StudentService, StudentServiceInterface
+from service.course_service import CourseServiceInterface
 
 
 class CourseSectionViewHandler(Resource):

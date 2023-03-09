@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -13,12 +15,12 @@ class Registration(ManagedEntity):
     lab_section_id : Mapped[int] = \
         mapped_column("lab_section_id", ForeignKey('lab_section.id'), nullable=True)
 
-    def __init__(self, status : str, student_id : int, course_section_id : int, lab_id : int = None) -> None:
+    def __init__(self, status : str, student_id : int, course_section_id : int, lab_id : Optional[int] = None) -> None:
         super().__init__()
         self.__status : str = status
         self.student_id : int = student_id
         self.course_section_id : int = course_section_id
-        self.lab_section_id : int = lab_id
+        self.lab_section_id : Optional[int] = lab_id
 
     @property
     def id(self) -> int:

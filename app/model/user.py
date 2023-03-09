@@ -22,10 +22,6 @@ class User(ManagedEntity):
         self.__password : str = ""
 
     @property
-    def id(self) -> int:
-        return self.__id
-
-    @property
     def first_name(self) -> str:
         return self.__first_name
 

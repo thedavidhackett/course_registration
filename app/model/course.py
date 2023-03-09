@@ -2,7 +2,7 @@ from typing import Dict, List
 from datetime import time
 
 from sqlalchemy import ForeignKey, String
-from sqlalchemy.orm import declared_attr, Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import ManagedEntity
 from .registration import Registration
@@ -150,9 +150,6 @@ class Section:
     @property
     def times(self) -> List[TimeSlot]:
         return self._times
-
-    def get_pre_reqs(self) -> List[Course]:
-        return self.course.pre_reqs
 
     def at_capacity(self) -> bool:
         return len(self._registrations) >= self._capacity

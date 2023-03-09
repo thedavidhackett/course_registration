@@ -1,15 +1,5 @@
-from typing import List
-
 from flask import g
-from flask_restful import Api, Resource, reqparse
-
-from db import db
-from db import notifications
-from model.notification import Notification
-from service.entity_manager import EntityManager
-from service.student_service import StudentService, StudentServiceInterface
-from service.notification_factory import BasicNotificationCreator, NotificationCreator
-
+from flask_restful import Api, Resource
 
 class GetUserHandler(Resource):
   def get(self):

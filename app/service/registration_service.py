@@ -35,7 +35,7 @@ class RegistrationService:
         self.__cs : CourseServiceInterface = cs
         self.__notification_factory = notification_factory
 
-    def register(self, checker_chain : RequirementChecker, student_id : int, cs_id : int, lab_id : int = None) -> Notification:
+    def register(self, checker_chain : RequirementChecker, student_id : int, cs_id : int, lab_id : Optional[int] = None) -> Notification:
 
         if (self.get_registration_by_student_id_and_course_id(student_id, cs_id)):
             return self.__notification_factory.factory_method({"msg": "You are already registered for this class", "type": "warning"})

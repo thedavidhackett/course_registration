@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 
-from flask import Blueprint, g,render_template, redirect, request, url_for
-from flask_restful import Api, Resource, reqparse
+from flask import g, request
+from flask_restful import Api, Resource
 
 from model.notification import Notification
 from service.registration_service import RegistrationServiceInterface

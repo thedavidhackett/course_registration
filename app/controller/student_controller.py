@@ -1,15 +1,12 @@
 from typing import Any, Dict, List
 
-from flask import Blueprint, g, render_template
-from flask_restful import Api, Resource, reqparse
+from flask import g
+from flask_restful import Api, Resource
 
-from db import db
 from model.course import CourseSection
 from model.notification import Notification
 from model.restriction import Restriction
-from service.entity_manager import EntityManager
-from service.notification_factory import BasicNotificationCreator, NotificationCreator
-from service.student_service import StudentService, StudentServiceInterface
+from service.student_service import StudentServiceInterface
 
 
 class StudentCoursesHandler(Resource):
