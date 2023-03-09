@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.expression import Select
 
 from .entity_manager import EntityManagerInterface
-from model.course import Course, CourseSection, LabSection
+from model.course import Course, CourseSection, Department, LabSection
 
 
 class CourseServiceInterface(ABC):
@@ -30,6 +30,10 @@ class CourseServiceInterface(ABC):
     def get_labs_by_course_id(self, course_id : int) -> List[LabSection]:
         pass
 
+    @abstractmethod
+    def get_departments(self) -> List[Department]:
+        pass
+
 class CourseService(CourseServiceInterface):
     def __init__(self, em : EntityManagerInterface) -> None:
         self.__em : EntityManagerInterface = em
@@ -38,8 +42,12 @@ class CourseService(CourseServiceInterface):
         stmt : Select = select(CourseSection).options(joinedload(CourseSection.course)).where(CourseSection.id == cs_id)
         return self.__em.get_by_id(CourseSection, cs_id)
 
-    def search(self, course_id : int) -> List[CourseSection]:
-        stmt : Select = select(CourseSection).options(joinedload(CourseSection.course)).where(CourseSection.course_id == course_id)
+    def search(self, course_id : int = None, department_id : int = None) -> List[CourseSection]:
+        stmt : Select = select(CourseSection).join(Course)
+        if course_id:
+            stmt = stmt.where(CourseSection.course_id == course_id)
+        if department_id:
+            stmt = stmt.where(Course.department_id == department_id)
         return self.__em.get_by_criteria(stmt)
 
     def get_course_prereqs(self, course_id : int) -> List[Course]:
@@ -53,3 +61,6 @@ class CourseService(CourseServiceInterface):
     def get_labs_by_course_id(self, course_id: int) -> List[LabSection]:
         stmt : Select = select(LabSection).where(LabSection.course_id == course_id)
         return self.__em.get_by_criteria(stmt)
+
+    def get_departments(self) -> List[Department]:
+        return self.__em.get_all(Department)

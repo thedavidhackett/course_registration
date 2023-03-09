@@ -10,10 +10,6 @@ from service.entity_manager import EntityManager
 from service.student_service import StudentService, StudentServiceInterface
 from service.notification_factory import BasicNotificationCreator, NotificationCreator
 
-em = EntityManager(db)
-ss : StudentServiceInterface = StudentService(em)
-notification_creator : NotificationCreator = BasicNotificationCreator()
-
 
 class GetUserHandler(Resource):
   def get(self):

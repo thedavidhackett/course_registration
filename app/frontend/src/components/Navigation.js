@@ -20,6 +20,12 @@ function Navigation() {
             <Nav.Link as={Link} to="/my-courses">
               My Courses
             </Nav.Link>
+            <Nav.Link as={Link} to="/course-search">
+              Find a Course
+            </Nav.Link>
+            <Nav.Link as={Link} to="/restrictions">
+              Restrictions
+            </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>

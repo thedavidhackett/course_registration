@@ -6,6 +6,7 @@ import Home from "./routes/Home";
 import Course from "./routes/Course";
 import Courses from "./routes/Courses";
 import CourseSearch from "./routes/CourseSearch";
+import Restrictions from "./routes/Restrictions";
 import reportWebVitals from "./reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -27,8 +28,12 @@ const router = createBrowserRouter([
         element: <Course />,
       },
       {
-        path: "/course-search/",
+        path: "/course-search",
         element: <CourseSearch />,
+      },
+      {
+        path: "/restrictions",
+        element: <Restrictions />,
       },
     ],
   },

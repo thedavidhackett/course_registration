@@ -22,3 +22,9 @@ export function get(url, callback, params = null) {
   }
   fetch(url_obj).then((res) => res.json().then((data) => callback(data)));
 }
+
+export function delete_request(url, callback) {
+  fetch(url, {
+    method: "DELETE",
+  }).then(() => callback());
+}

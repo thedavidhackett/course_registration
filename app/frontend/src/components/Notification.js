@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Alert, Button, Form } from "react-bootstrap";
 import { post } from "../utilities";
 
-export default function Notification({ notification, callback }) {
+export default function Notification({ notification, callback, destroy }) {
   const [error, setError] = useState(null);
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -22,7 +22,7 @@ export default function Notification({ notification, callback }) {
     }
   };
   return (
-    <Alert variant={notification.type}>
+    <Alert variant={notification.type} onClose={() => destroy()} dismissible>
       <p>{notification.msg}</p>
       {notification.action && (
         <Form onSubmit={handleSubmit}>

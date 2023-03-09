@@ -1,14 +1,16 @@
-from db import db
+from db import db, notifications
 from model.registration import Registration
 from service.entity_manager import EntityManager
 from service.notification_factory import BasicNotificationCreator
+from service.notification_service import NotificationService
 from service.registration_service import RegistrationService
 from service.requirement_checker import create_registration_requirements_chain, create_pending_requirements_chain, create_tentative_requirements_chain
 from service.course_service import CourseService
 from service.student_service import StudentService
 
 em : EntityManager = EntityManager(db)
-rs : RegistrationService = RegistrationService(em, CourseService(em), StudentService(em), BasicNotificationCreator())
+ns : NotificationService = NotificationService(notifications, BasicNotificationCreator())
+rs : RegistrationService = RegistrationService(em, CourseService(em), StudentService(em, ns), BasicNotificationCreator())
 
 
 def test_register_student():

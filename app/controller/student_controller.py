@@ -5,21 +5,17 @@ from flask_restful import Api, Resource, reqparse
 
 from db import db
 from model.course import CourseSection
+from model.notification import Notification
+from model.restriction import Restriction
 from service.entity_manager import EntityManager
 from service.notification_factory import BasicNotificationCreator, NotificationCreator
 from service.student_service import StudentService, StudentServiceInterface
-
-bp : Blueprint = Blueprint('student', __name__, url_prefix='/student')
-em : EntityManager = EntityManager(db)
-ss : StudentServiceInterface = StudentService(em)
-notification_creator : NotificationCreator = BasicNotificationCreator()
-
 
 
 class StudentCoursesHandler(Resource):
     def __init__(self, ss : StudentServiceInterface) -> None:
         super().__init__()
-        self.__ss = ss
+        self.__ss : StudentServiceInterface = ss
 
     def get(self):
         c : CourseSection
@@ -31,5 +27,25 @@ class StudentCoursesHandler(Resource):
         return result
 
 
+class StudentNotificationHandler(Resource):
+    def __init__(self, ss : StudentServiceInterface) -> None:
+        super().__init__()
+        self.__ss : StudentServiceInterface = ss
+
+    def get(self):
+        n : Notification
+        return [n.view() for n in self.__ss.get_student_notifications(g.user.id)]
+
+
+class StudentRestrictionHandler(Resource):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def get(self):
+        r : Restriction
+        return [r.message for r in g.user.restrictions]
+
 def register(api : Api, ss : StudentServiceInterface):
     api.add_resource(StudentCoursesHandler, "/api/student/courses", resource_class_kwargs={'ss': ss})
+    api.add_resource(StudentNotificationHandler, "/api/student/notifications", resource_class_kwargs={'ss': ss})
+    api.add_resource(StudentRestrictionHandler, "/api/student/restrictions")

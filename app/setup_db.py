@@ -9,10 +9,19 @@ from model.restriction import FeeRestriction, Restriction
 from model.user import Instructor, Professor,Student
 from service.entity_manager import EntityManager
 from service.course_service import CourseService
+from service.notification_service import NotificationService
+from service.notification_factory import BasicNotificationCreator
 
 notifications.drop()
-notifications.insert_many([{"student_id": 1, "type": "restriction", "msg": "You have a restriction"},\
-                          {"student_id": 5, "type": "info", "msg": "This is a notification about something"}])
+notifications.insert_many([{"student_id": 5, "type": "info", "msg": "Course registration closes in 3 days"},\
+                          {"student_id": 5, "type": "info", "msg": "Please schedule a meeting with your advisor"}])
+
+ns = NotificationService(notifications, BasicNotificationCreator())
+
+notes = ns.get_student_notifications(5)
+
+print(notes[0].id)
+
 Base.metadata.drop_all(db)
 Base.metadata.create_all(db)
 

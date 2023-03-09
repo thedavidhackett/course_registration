@@ -34,6 +34,9 @@ class Department(ManagedEntity):
     def make_chair(self, professor : Professor):
         self.__chair_id = professor.id
 
+    def view(self) -> Dict[str, object]:
+        return {"id": self.id, "name": self.name}
+
 
 
 class Course(ManagedEntity):
@@ -46,7 +49,7 @@ class Course(ManagedEntity):
     pre_req_for_id : Mapped[int] = mapped_column("pre_req_for_id", ForeignKey('course.id'), nullable=True)
     course_sections: Mapped[List["CourseSection"]] = relationship(back_populates="course")
     lab_sections: Mapped[List["LabSection"]] = relationship(back_populates="course")
-    __department_id : Mapped[int] = mapped_column("department_id", ForeignKey('department.id'))
+    department_id : Mapped[int] = mapped_column("department_id", ForeignKey('department.id'))
     _department : Mapped[Department] = relationship(lazy="subquery")
     __instructor_id : Mapped[int] = mapped_column("instructor_id", ForeignKey('instructor.id'))
     _instructor : Mapped[Instructor] = relationship(lazy="subquery")
@@ -57,7 +60,7 @@ class Course(ManagedEntity):
         self.__id : int = id
         self.__name : str = name
         self.__description : str = description
-        self.__department_id : int = department_id
+        self.department_id : int = department_id
         self.__instructor_id : int = instructor_id
         self.__lab_required : int = lab_required
         self.__consent_required : str = consent_required

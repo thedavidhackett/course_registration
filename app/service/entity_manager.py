@@ -14,6 +14,10 @@ class EntityManagerInterface(ABC):
         pass
 
     @abstractmethod
+    def get_all(self, Cls : Type[ManagedEntity]) -> List[ManagedEntity]:
+        pass
+
+    @abstractmethod
     def add(self, obj : ManagedEntity) -> None:
         pass
 
@@ -29,6 +33,8 @@ class EntityManagerInterface(ABC):
     def delete(self, obj : ManagedEntity) -> None:
         pass
 
+
+
 class EntityManager(EntityManagerInterface):
     def __init__(self, db) -> None:
         self.__db = db
@@ -37,6 +43,11 @@ class EntityManager(EntityManagerInterface):
         with Session(self.__db) as s:
             obj : Optional[ManagedEntity] = s.get(Cls, id)
             return obj
+
+    def get_all(self, Cls: Type[ManagedEntity]) -> List[ManagedEntity]:
+        with Session(self.__db) as s:
+            obj : ManagedEntity
+            return [obj for obj in s.query(Cls).all()]
 
     def add(self, obj : ManagedEntity) -> None:
         with Session(self.__db) as s:
