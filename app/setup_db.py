@@ -72,7 +72,7 @@ with Session(db) as session:
 
     reg1 = Registration("registered", student3.id, course_section4.id)
     reg2 = Registration("registered", student5.id, course_section1.id)
-    reg3 = Registration("pending", student5.id, course_section2.id)
+    reg3 = Registration("tentative", student5.id, course_section2.id)
     session.add_all([reg1, reg2, reg3])
     session.commit()
 

@@ -5,9 +5,15 @@ from flask_restful import Api, Resource, reqparse
 from flask_cors import CORS
 
 from db import db
-from controller import default_controller, student_controller
+from controller import course_controller, default_controller, registration_controller, student_controller
+from service.course_service import CourseService
 from service.student_service import StudentService
 from service.entity_manager import EntityManager
+from service.registration_service import RegistrationService
+from service.notification_factory import BasicNotificationCreator
+from service.requirement_checker import (create_registration_requirements_chain,
+                                         create_pending_requirements_chain,
+                                         create_tentative_requirements_chain)
 
 
 def create_app(testing=False):
@@ -23,6 +29,8 @@ def create_app(testing=False):
 
     em = EntityManager(db)
     ss = StudentService(em)
+    cs = CourseService(em)
+    rs = RegistrationService(em, cs, ss, BasicNotificationCreator())
 
     @app.before_request
     def load_logged_in_user():
@@ -33,6 +41,8 @@ def create_app(testing=False):
         return send_from_directory(app.static_folder,'index.html')
 
     default_controller.register(api)
+    course_controller.register(api, cs)
+    registration_controller.register(api, rs, create_registration_requirements_chain(), create_pending_requirements_chain(), create_tentative_requirements_chain())
     student_controller.register(api, ss)
 
 

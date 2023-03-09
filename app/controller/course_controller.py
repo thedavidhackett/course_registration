@@ -1,6 +1,7 @@
-from typing import List
+from typing import Any, Dict, List
 
 from flask import Blueprint, g,render_template, redirect, request, url_for
+from flask_restful import Api, Resource, reqparse
 
 from db import db
 from form.course_search import CourseSearch
@@ -13,38 +14,29 @@ from service.registration_service import RegistrationService, RegistrationServic
 from service.requirement_checker import create_registration_requirements_chain
 from service.student_service import StudentService, StudentServiceInterface
 
-bp : Blueprint = Blueprint('course', __name__, url_prefix='/course')
-em : EntityManager = EntityManager(db)
-ss : StudentServiceInterface = StudentService(em)
-rs : RegistrationServiceInterface = RegistrationService(em, BasicNotificationCreator())
-cs : CourseServiceInterface = CourseService(em)
+
+class CourseSectionViewHandler(Resource):
+    def __init__(self, cs : CourseServiceInterface) -> None:
+        super().__init__()
+        self.__cs : CourseServiceInterface = cs
+
+    def get(self, id : int):
+        course : CourseSection = self.__cs.get_course_section_by_id(id)
+        result : Dict[str, Any] = course.view()
+        result['enrolled'] = g.user.is_enrolled_in_course(id)
+        return result
+
+class CourseSearchHandler(Resource):
+    def __init__(self, cs : CourseServiceInterface) -> None:
+        super().__init__()
+        self.__cs : CourseServiceInterface = cs
+
+    def get(self):
+        courses : List[CourseSection] = self.__cs.search(course_id=request.args.get("course_id"))
+        c : CourseSection
+        return [c.view() for c in courses]
 
 
-@bp.before_app_request
-def load_logged_in_user():
-    g.user = ss.get_student_by_id(5)
-
-@bp.route('', methods=(['GET', 'POST']))
-def search():
-    courses : List[CourseSection] = []
-    form : CourseSearch = CourseSearch(request.form)
-
-    if request.method == "POST" and form.validate():
-        courses = cs.search(course_id=form.course_id.data)
-
-    return render_template('course/search.html', courses=courses, form=form)
-
-@bp.route('/<int:id>', methods=(['GET', 'POST']))
-def view(id : int):
-    course : CourseSection = em.get_by_id(CourseSection, id)
-    course_notifications : List[Notification] = []
-
-    if request.method == "POST":
-        if request.form.get("register") == "register":
-            reg_notification : Notification = rs.register(create_registration_requirements_chain(), g.user.id, id)
-            course_notifications.append(reg_notification)
-        elif request.form.get("drop") == "drop":
-            drop_notification : Notification = rs.drop_class(g.user.id, id)
-            course_notifications.append(drop_notification)
-
-    return render_template('course/view.html', course=course, notifications=course_notifications)
+def register(api : Api, cs : CourseServiceInterface) -> None:
+        api.add_resource(CourseSectionViewHandler, "/api/course-section/<int:id>", resource_class_kwargs={'cs': cs})
+        api.add_resource(CourseSearchHandler, "/api/courses", resource_class_kwargs={'cs': cs})

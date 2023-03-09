@@ -37,3 +37,10 @@ def test_student_courses_page(client):
     data = json.loads(response.data)
 
     assert 514101 == data['registered'][0]['id']
+
+def test_course_view(client):
+    response = client.get("/api/course-section/514101")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+
+    assert 514101 == data['id']

@@ -157,7 +157,7 @@ class LabRequirementChecker(RequirementChecker):
             options : List[Dict[str, int]] = [{"label" : str(l.id) + " " + " and ".join([str(t) for t in l.times]), "value": l.id}\
                                         for l in labs]
             notification : Notification = self.__notification_factory.factory_method(\
-                    {"msg": "This course requires a lab, please select one.", "type": "info", "data": {"course_id": course.id},\
+                    {"msg": "This course requires a lab, please select one.", "type": "info", "data": {"course_section_id": course.id},\
                       "action": "/register", "value_name": "lab_id", "options": options, "submit_text": "Select Lab"})
 
             return False, notification, ""
