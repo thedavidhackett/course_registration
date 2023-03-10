@@ -28,6 +28,10 @@ class Department(ManagedEntity):
         return self.__name
 
     @property
+    def chair_id(self) -> int:
+        return self.__chair_id
+
+    @property
     def chair(self) -> Professor:
         return self._chair
 
@@ -85,6 +89,10 @@ class Course(ManagedEntity):
     @property
     def pre_reqs(self) -> List['Course']:
         return self.__pre_reqs
+
+    @property
+    def instructor_id(self) -> bool:
+        return self.__instructor_id
 
     @property
     def lab_required(self) -> bool:

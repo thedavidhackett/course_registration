@@ -7,11 +7,11 @@ from .base import ManagedEntity
 
 class Permission(ManagedEntity):
     __id : Mapped[int] = mapped_column("id", primary_key=True, autoincrement=True)
-    _student_id : Mapped[int] = \
+    student_id : Mapped[int] = \
         mapped_column("student_id", ForeignKey('student.id'))
-    _course_id : Mapped[int] = \
+    course_id : Mapped[int] = \
             mapped_column("course_id", ForeignKey('course.id'))
-    _approver_id : Mapped[int] = \
+    approver_id : Mapped[int] = \
             mapped_column("approver_id", ForeignKey('instructor.id'))
     _approved : Mapped[bool] = mapped_column("approved")
     type: Mapped[str] = mapped_column("type", String(100))
@@ -20,13 +20,13 @@ class Permission(ManagedEntity):
 
     def __init__(self, student_id : int, course_id : int, approver_id : int, approved : bool = False) -> None:
         super().__init__()
-        self._student_id : int = student_id
-        self._course_id : int = course_id
-        self._approver_id : int = approver_id
+        self.student_id : int = student_id
+        self.course_id : int = course_id
+        self.approver_id : int = approver_id
         self._approved : int = approved
 
     def check_for_approval(self, course_id : int, type : str) -> bool:
-        if course_id != self._course_id:
+        if course_id != self.course_id:
             return False
 
         if type != self.type:

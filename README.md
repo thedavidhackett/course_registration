@@ -4,7 +4,17 @@
 
 You must have docker [installed](https://www.docker.com/). Both the databases and the app are run using containers.
 
-In main directory (course_registration) run:
+The app makes use of react so you first need to install the packages for the frontend and build. Start off be going into the frontend directory:
+
+`cd app/frontend`
+
+Then run:
+`npm install`
+
+Then:
+`npm run build`
+
+Back in main directory (course_registration) run:
 `docker compose build --no-cache`
 
 Then to run the project:
@@ -47,9 +57,11 @@ Ctrl-c in the command window running the docker containers you can then run:
 - A Student can register for a class
 - A Student can drop a class
 - A Student can search for a course by id
+- A Student can search for a course by department
 - Has MySql Database for everything but notifications
-- Has NoSql (Mongo) database for notification
+- Has NoSql (Mongo) database for notifications
 - A student can request instructor consent
 - A student can request department chair consent to overload schedule
 - A student can view restrictions
 - A student is shown other sections if a class is not available
+- A student is shown lab options when the course requires a lab

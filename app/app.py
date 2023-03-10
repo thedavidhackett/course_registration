@@ -32,7 +32,7 @@ def create_app(testing=False):
     ns = NotificationService(notifications, BasicNotificationCreator())
     ss = StudentService(em, ns)
     cs = CourseService(em)
-    rs = RegistrationService(em, cs, ss, BasicNotificationCreator())
+    rs = RegistrationService(em, cs, ns, BasicNotificationCreator())
 
     @app.before_request
     def load_logged_in_user():
@@ -44,7 +44,7 @@ def create_app(testing=False):
 
     default_controller.register(api)
     course_controller.register(api, cs)
-    registration_controller.register(api, rs, create_registration_requirements_chain(), create_pending_requirements_chain(), create_tentative_requirements_chain())
+    registration_controller.register(api, rs, rs, create_registration_requirements_chain(), create_pending_requirements_chain(), create_tentative_requirements_chain())
     student_controller.register(api, ss)
     notification_controller.register(api, ns)
 

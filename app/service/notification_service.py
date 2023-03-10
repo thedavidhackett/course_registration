@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from bson.objectid import ObjectId
+from pymongo.collection import Collection
 from typing import Any, Dict, List
 
 from model.notification import Notification
@@ -19,9 +20,9 @@ class NotificationServiceInterface(ABC):
         pass
 
 class NotificationService(NotificationServiceInterface):
-    def __init__(self, db : Any, factory : NotificationCreator) -> None:
+    def __init__(self, db : Collection, factory : NotificationCreator) -> None:
         super().__init__()
-        self.__db : Any = db
+        self.__db : Collection = db
         self.__factory : NotificationCreator = factory
 
     def get_student_notifications(self, student_id: int) -> List[Notification]:

@@ -25,12 +25,15 @@ Base.metadata.create_all(db)
 with Session(db) as session:
     instructor1 = Professor("Bob", "Martin")
     instructor2 = Instructor("Jim", "Computers")
-    session.add_all([instructor1, instructor2])
+    instructor3 = Professor("Bill", "English")
+    instructor4 = Instructor("John", "Irish")
+    session.add_all([instructor1, instructor2, instructor3, instructor4])
     session.commit()
 
     department1 = Department("Computer Science", 1)
+    department2 = Department("English", 3)
 
-    session.add_all([department1])
+    session.add_all([department1, department2])
     session.commit()
 
     student1 = Student("David", "Hackett", "graduate")
@@ -46,6 +49,8 @@ with Session(db) as session:
                      description="For students who took objected oriented programming and want to learn more", department_id=1, instructor_id=1)
 
     course4 = Course(id=51300, name="Compliers", description="A course on compliers", department_id=1, instructor_id=1, lab_required=True)
+    course5 = Course(id=41000, name="Ulysses", description="Read the book", department_id=2, instructor_id=4)
+
 
     course3.add_pre_req(course1)
 
@@ -59,8 +64,9 @@ with Session(db) as session:
     time_slot5 = TimeSlot("Tuesday", time(17,30), time(20,30))
     time_slot6 = TimeSlot("Friday", time(12,0), time(13,0))
     time_slot7 = TimeSlot("Friday", time(12,0), time(13,0))
+    time_slot8 = TimeSlot("Monday", time(12,0), time(15,0))
 
-    session.add_all([time_slot1, time_slot2, time_slot3, time_slot4, time_slot5, time_slot6, time_slot7])
+    session.add_all([time_slot1, time_slot2, time_slot3, time_slot4, time_slot5, time_slot6, time_slot7, time_slot8])
     session.commit()
 
     course_section1 = CourseSection(section_id=1, capacity=30, course=course1, times=[time_slot1])
@@ -68,18 +74,18 @@ with Session(db) as session:
     course_section3 = CourseSection(section_id=1, capacity=30, course=course3, times=[time_slot3])
     course_section4 = CourseSection(section_id=2, capacity=1, course=course1, times=[time_slot4])
     course_section5 = CourseSection(section_id=1, capacity=30, course=course4, times=[time_slot5])
+    course_section6 = CourseSection(section_id=1, capacity=10, course=course5, times=[time_slot8])
     lab_section1 = LabSection(section_id=1, capacity=15, course=course4, times=[time_slot6])
     lab_section2 = LabSection(section_id=2, capacity=15, course=course4, times=[time_slot7])
 
     restriction : FeeRestriction = FeeRestriction(student2.id)
     session.add_all([course_section1, course_section2, course_section3, course_section4,\
-                      course_section5, lab_section1, lab_section2, restriction])
+                      course_section5, course_section6, lab_section1, lab_section2, restriction])
     session.commit()
 
     reg1 = Registration("registered", student3.id, course_section4.id)
     reg2 = Registration("registered", student5.id, course_section1.id)
-    reg3 = Registration("tentative", student5.id, course_section2.id)
-    session.add_all([reg1, reg2, reg3])
+    session.add_all([reg1, reg2])
     session.commit()
 
     me = session.get(Student, 1)

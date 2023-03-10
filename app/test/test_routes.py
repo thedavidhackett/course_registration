@@ -61,7 +61,6 @@ def test_course_view(client):
 
     assert 514101 == data['id']
 
-
 def test_departments(client):
     response = client.get("/api/departments")
     assert response.status_code == 200
@@ -75,3 +74,48 @@ def test_student_restrictions(client):
     data = json.loads(response.data)
 
     assert data == []
+
+def test_register_with_lab_no_lab(client):
+    response = client.post("/api/register", data=json.dumps({"course_section_id": 513001}),\
+                           headers={"Content-Type": "application/json"})
+    assert response.status_code == 200
+    data = json.loads(response.data)
+
+    assert len(data['options']) == 2
+
+
+def test_register_with_lab(client):
+    response = client.post("/api/register", data=json.dumps({"course_section_id": 513001, "lab_id": 5130001}),\
+                           headers={"Content-Type": "application/json"})
+    assert response.status_code == 200
+    data = json.loads(response.data)
+
+    assert data['msg'] == "You successfully registered for 513001 - Compliers"
+
+
+def test_register_full(client):
+    response = client.post("/api/register", data=json.dumps({"course_section_id": 514102}),\
+                           headers={"Content-Type": "application/json"})
+    assert response.status_code == 200
+    data = json.loads(response.data)
+
+    assert len(data['options']) == 1
+
+def test_register_tentative(client):
+    response = client.post("/api/register/tentative", data=json.dumps({"course_section_id": 512301}),\
+                           headers={"Content-Type": "application/json"})
+    assert response.status_code == 200
+    data = json.loads(response.data)
+
+    assert data['msg'] == "Your registration for 512301 - User Interface and User Experience Design is tentative"
+    assert notifications.find_one({"instructor_id": 2})
+
+
+def test_register_pending(client):
+    response = client.post("/api/register/pending", data=json.dumps({"course_section_id": 410001}),\
+                           headers={"Content-Type": "application/json"})
+    assert response.status_code == 200
+    data = json.loads(response.data)
+
+    assert data['msg'] == "Your registration for 410001 - Ulysses is pending"
+    assert notifications.find_one({"instructor_id": 3})

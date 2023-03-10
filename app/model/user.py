@@ -92,6 +92,12 @@ class Instructor(User):
     def __init__(self, first_name: str, last_name: str) -> None:
         super().__init__(first_name, last_name)
 
+    def full_name(self) -> str:
+        return "Professor " + " " + self.first_name + " " + self.last_name
+
+    def view(self) -> Dict[str, object]:
+        return {"name": self.full_name, "id": self.id}
+
 
 class Professor(Instructor):
     id: Mapped[int] = mapped_column(ForeignKey("instructor.id"), primary_key=True)

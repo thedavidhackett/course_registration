@@ -34,6 +34,10 @@ class CourseServiceInterface(ABC):
     def get_departments(self) -> List[Department]:
         pass
 
+    @abstractmethod
+    def get_department_by_id(self, id : int) -> Optional[Department]:
+        pass
+
 class CourseService(CourseServiceInterface):
     def __init__(self, em : EntityManagerInterface) -> None:
         self.__em : EntityManagerInterface = em
@@ -64,3 +68,6 @@ class CourseService(CourseServiceInterface):
 
     def get_departments(self) -> List[Department]:
         return self.__em.get_all(Department)
+
+    def get_department_by_id(self, id : int) -> Optional[Department]:
+        return self.__em.get_by_id(Department, id)

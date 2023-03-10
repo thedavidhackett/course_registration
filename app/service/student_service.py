@@ -30,7 +30,7 @@ class StudentService:
         self.__em : EntityManagerInterface = em
         self.__ns : NotificationServiceInterface = ns
 
-    def get_student_by_id(self, id : int) -> Student:
+    def get_student_by_id(self, id : int) -> Optional[Student]:
         return self.__em.get_by_id(Student, id)
 
     def get_student_courses(self, student : Student) -> Dict[str, List[CourseSection]]:

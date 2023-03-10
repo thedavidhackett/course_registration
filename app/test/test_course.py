@@ -34,3 +34,19 @@ def test_course_search_just_id():
     cs_ids = [c.id for c in courses]
     assert course_section1.id in cs_ids
     assert course_section2.id in cs_ids
+
+
+def test_course_search_just_department():
+    course_section : CourseSection = cs.get_course_section_by_id(410001)
+
+    courses : List[CourseSection] = cs.search(None, 2)
+    cs_ids = [c.id for c in courses]
+    assert course_section.id in cs_ids
+
+
+def test_course_search_both_id_department():
+    course_section : CourseSection = cs.get_course_section_by_id(410001)
+
+    courses : List[CourseSection] = cs.search(None, 2)
+    cs_ids = [c.id for c in courses]
+    assert course_section.id in cs_ids
